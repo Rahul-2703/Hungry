@@ -117,6 +117,9 @@
                 <span
                     class="cart-badge hidden absolute top-0 right-0 bg-secondary text-white text-[10px] w-4 h-4 rounded-full flex justify-center items-center font-bold">0</span>
             </a>
+            <a href="#" class="p-2 hover:bg-[#1c1b1b]/10 rounded-full transition-all relative inline-block">
+                <span class="material-symbols-outlined text-[#1c1b1b] text-3xl">account_circle</span>
+            </a>
         </div>
     </nav>
 
@@ -145,6 +148,15 @@
                         class="bg-primary text-on-primary px-8 py-3 rounded-full font-bold hover:bg-primary/90 transition-colors">Search</button>
                 </div>
             </div>
+            <!-- Veg / Non-Veg Toggle -->
+            <div class="absolute bottom-8 right-8 z-20 flex items-center gap-3 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-outline-variant">
+                <span class="font-bold text-sm text-green-700">Veg</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="diet-toggle" class="sr-only peer" onchange="handleDietFilter()">
+                    <div class="w-11 h-6 bg-green-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+                </label>
+                <span class="font-bold text-sm text-red-600">Non-Veg</span>
+            </div>
         </section>
 
         <section class="px-8 py-12">
@@ -156,7 +168,7 @@
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
                 <a href="recipe.html?id=chicken-biryani"
-                    class="bento-item bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant group cursor-pointer block">
+                    data-diet="non-veg" class="bento-item bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant group cursor-pointer block">
                     <div class="aspect-square overflow-hidden">
                         <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             src="https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=500"
@@ -168,7 +180,7 @@
                     </div>
                 </a>
                 <a href="recipe.html?id=paneer-tikka"
-                    class="bento-item bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant group cursor-pointer block">
+                    data-diet="veg" class="bento-item bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant group cursor-pointer block">
                     <div class="aspect-square overflow-hidden">
                         <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             src="https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=500"
@@ -180,7 +192,7 @@
                     </div>
                 </a>
                 <a href="recipe.html?id=dhal-soup"
-                    class="bento-item bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant group cursor-pointer block">
+                    data-diet="veg" class="bento-item bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant group cursor-pointer block">
                     <div class="aspect-square overflow-hidden">
                         <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=500"
@@ -191,7 +203,7 @@
                     </div>
                 </a>
                 <a href="recipe.html?id=samosa"
-                    class="bento-item bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant group cursor-pointer block">
+                    data-diet="veg" class="bento-item bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant group cursor-pointer block">
                     <div class="aspect-square overflow-hidden">
                         <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             src="https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=500"
@@ -203,7 +215,7 @@
                     </div>
                 </a>
                 <a href="recipe.html?id=butter-chicken"
-                    class="bento-item bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant group cursor-pointer block">
+                    data-diet="non-veg" class="bento-item bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant group cursor-pointer block">
                     <div class="aspect-square overflow-hidden">
                         <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             src="https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=500"
@@ -215,7 +227,7 @@
                     </div>
                 </a>
                 <a href="recipe.html?id=masala-dosa"
-                    class="bento-item bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant group cursor-pointer block">
+                    data-diet="veg" class="bento-item bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant group cursor-pointer block">
                     <div class="aspect-square overflow-hidden">
                         <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             src="img/masala_dosa.png" alt="Masala Dosa" />
@@ -227,7 +239,7 @@
 
                 <!-- 6 New Items Added Below -->
                 <a href="recipe.html?id=palak-paneer"
-                    class="bento-item bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant group cursor-pointer block">
+                    data-diet="veg" class="bento-item bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant group cursor-pointer block">
                     <div class="aspect-square overflow-hidden">
                         <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             src="img/palak_paneer.png" alt="Palak Paneer" />
@@ -238,7 +250,7 @@
                     </div>
                 </a>
                 <a href="recipe.html?id=chole-bhature"
-                    class="bento-item bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant group cursor-pointer block">
+                    data-diet="veg" class="bento-item bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant group cursor-pointer block">
                     <div class="aspect-square overflow-hidden">
                         <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             src="img/chole_bhature.png" alt="Chole Bhature" />
@@ -249,7 +261,7 @@
                     </div>
                 </a>
                 <a href="recipe.html?id=gulab-jamun"
-                    class="bento-item bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant group cursor-pointer block">
+                    data-diet="veg" class="bento-item bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant group cursor-pointer block">
                     <div class="aspect-square overflow-hidden">
                         <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             src="img/gulab_jamun.png" alt="Gulab Jamun" />
@@ -259,7 +271,7 @@
                     </div>
                 </a>
                 <a href="recipe.html?id=tandoori-chicken"
-                    class="bento-item bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant group cursor-pointer block">
+                    data-diet="non-veg" class="bento-item bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant group cursor-pointer block">
                     <div class="aspect-square overflow-hidden">
                         <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             src="img/tandoori_chicken.png" alt="Tandoori Chicken" />
@@ -270,7 +282,7 @@
                     </div>
                 </a>
                 <a href="recipe.html?id=vada-pav"
-                    class="bento-item bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant group cursor-pointer block">
+                    data-diet="veg" class="bento-item bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant group cursor-pointer block">
                     <div class="aspect-square overflow-hidden">
                         <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             src="img/vada_pav.png" alt="Vada Pav" />
@@ -280,7 +292,7 @@
                     </div>
                 </a>
                 <a href="recipe.html?id=mutton-curry"
-                    class="bento-item bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant group cursor-pointer block">
+                    data-diet="non-veg" class="bento-item bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant group cursor-pointer block">
                     <div class="aspect-square overflow-hidden">
                         <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             src="img/mutton_curry.png" alt="Mutton Rogan Josh" />
@@ -514,13 +526,28 @@
 
     <script src="js/app.js"></script>
     <script>
+        function handleDietFilter() {
+            handleSearch();
+        }
+
         function handleSearch() {
             const query = document.getElementById('search-input').value.toLowerCase();
+            const dietToggle = document.getElementById('diet-toggle');
+            const dietPreference = dietToggle && dietToggle.checked ? 'non-veg' : 'veg';
+            
             const items = document.querySelectorAll('.bento-item');
             
             items.forEach(item => {
                 const text = item.innerText.toLowerCase();
-                if (text.includes(query)) {
+                const itemDiet = item.getAttribute('data-diet') || 'veg'; // Default to veg if not set
+                
+                const matchesSearch = text.includes(query);
+                // If dietPreference is veg, only show veg. If non-veg, show both or only non-veg? 
+                // Wait, if toggle is veg, show only veg. If toggle is non-veg, show only non-veg?
+                // The toggle is "Veg / Non-Veg". Let's show ONLY veg if veg is selected, and ONLY non-veg if non-veg is selected.
+                const matchesDiet = (itemDiet === dietPreference);
+                
+                if (matchesSearch && matchesDiet) {
                     item.style.display = '';
                 } else {
                     item.style.display = 'none';
@@ -553,6 +580,9 @@
                 }, 4500); // increased from 3000 to allow slower video to play
                 sessionStorage.setItem('hasLoaded', 'true');
             }
+            
+            // Apply initial diet filter
+            handleSearch();
         });
     </script>
 </body>

@@ -79,10 +79,17 @@
             </a>
         </div>
         <div class="flex items-center gap-4">
+            <button onclick="openOffersModal()" class="relative p-2 hover:bg-[#1c1b1b]/10 rounded-full transition-all">
+                <span class="material-symbols-outlined text-3xl">notifications</span>
+                <span class="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-[#FFD700]"></span>
+            </button>
             <a href="cart.html" class="p-2 hover:bg-[#1c1b1b]/10 rounded-full transition-all relative inline-block">
                 <span class="material-symbols-outlined text-[#1c1b1b]">shopping_cart</span>
-                <span
-                    class="cart-badge hidden absolute top-0 right-0 bg-secondary text-white text-[10px] w-4 h-4 rounded-full flex justify-center items-center font-bold">0</span>
+                <span id="cart-badge"
+                    class="hidden absolute top-0 right-0 bg-secondary text-white text-[10px] w-4 h-4 rounded-full flex justify-center items-center font-bold">0</span>
+            </a>
+            <a href="#" class="p-2 hover:bg-[#1c1b1b]/10 rounded-full transition-all relative inline-block">
+                <span class="material-symbols-outlined text-[#1c1b1b] text-3xl">account_circle</span>
             </a>
         </div>
     </nav>
@@ -95,37 +102,80 @@
                 <!-- Items injected by JS -->
             </div>
 
-            <div class="bg-white p-6 rounded-2xl shadow-md border border-outline-variant flex flex-col gap-4 h-fit">
-                <h3 class="font-title-lg text-title-lg border-b border-outline-variant pb-2">Order Summary</h3>
-                <div class="flex justify-between">
-                    <span>Subtotal</span>
-                    <span id="subtotal" class="font-bold">₹0.00</span>
-                </div>
-                <div class="flex justify-between">
-                    <span>Delivery</span>
-                    <span id="delivery-fee" class="font-bold">₹50.00</span>
-                </div>
-                <div
-                    class="flex justify-between text-headline-md font-headline-md border-t border-outline-variant pt-2">
-                    <span>Total</span>
-                    <span id="total" class="text-secondary">₹0.00</span>
-                </div>
-
-                <div id="location-info"
-                    class="hidden bg-surface-container p-4 rounded-lg mt-4 text-sm flex flex-col gap-2">
-                    <span class="font-bold flex items-center gap-1"><span
-                            class="material-symbols-outlined text-sm">restaurant</span> Restaurant Found!</span>
-                    <span id="restaurant-name" class="text-on-surface-variant"></span>
-                    <span id="restaurant-eta" class="text-primary font-bold"></span>
+            <div class="bg-white p-6 rounded-2xl shadow-md border border-outline-variant flex flex-col h-fit transition-all duration-500" id="order-summary-card">
+                <h3 class="font-title-lg text-title-lg border-b border-outline-variant pb-2 mb-4">Order Summary</h3>
+                <div class="flex flex-col gap-4">
+                    <div class="flex justify-between">
+                        <span>Subtotal</span>
+                        <span id="subtotal" class="font-bold">₹0.00</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Delivery</span>
+                        <span id="delivery-fee" class="font-bold">₹50.00</span>
+                    </div>
+                    <div class="flex justify-between font-bold text-green-600 hidden" id="discount-row">
+                        <span>Discount</span>
+                        <span id="discount-amount">-₹0.00</span>
+                    </div>
+                    <div
+                        class="flex justify-between text-headline-md font-headline-md border-t border-outline-variant pt-2">
+                        <span>Total</span>
+                        <span id="total" class="text-secondary">₹0.00</span>
+                    </div>
                 </div>
 
-                <button id="checkout-btn"
-                    class="w-full mt-4 bg-primary text-on-primary py-4 rounded-xl font-bold hover:bg-primary/90 transition-all shadow-md flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined">payments</span>
-                    CHECKOUT
-                </button>
-                <div id="loading" class="hidden text-center text-on-surface-variant animate-pulse">Finding nearby
-                    delivery...</div>
+                <div id="checkout-start-section" class="mt-6">
+                    <button id="checkout-btn" onclick="startCheckout()"
+                        class="w-full bg-primary text-on-primary py-4 rounded-xl font-bold hover:bg-primary/90 transition-all shadow-md flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined">shopping_bag</span>
+                        CHECKOUT
+                    </button>
+                </div>
+
+                <div id="address-section" class="hidden flex-col gap-3 mt-4 border-t border-outline-variant pt-4">
+                    <h4 class="font-bold">1. Delivery Address</h4>
+                    <select id="saved-address" class="w-full p-3 border border-outline-variant rounded-lg font-body-md bg-white focus:outline-none focus:border-primary" onchange="toggleNewAddress()">
+                        <option value="">Select saved address...</option>
+                        <option value="home">Home: 123 Hunger Street, Food City</option>
+                        <option value="work">Work: 456 Tech Park, Developer Road</option>
+                        <option value="new">+ Add new address</option>
+                    </select>
+                    <textarea id="new-address-input" class="hidden w-full p-3 border border-outline-variant rounded-lg font-body-md placeholder:text-gray-400 focus:outline-none focus:border-primary" placeholder="Enter full address" rows="2"></textarea>
+                    <button onclick="proceedToPayment()" class="w-full bg-primary text-on-primary py-3 rounded-xl font-bold hover:bg-primary/90 transition-all shadow-md mt-2">Continue to Payment</button>
+                </div>
+
+                <div id="payment-section" class="hidden flex-col gap-4 mt-4 border-t border-outline-variant pt-4">
+                    <h4 class="font-bold">2. Payment Method</h4>
+                    <div class="flex flex-col gap-2">
+                        <label class="flex items-center gap-3 cursor-pointer p-3 border border-outline-variant rounded-xl hover:bg-gray-50 transition-colors">
+                            <input type="radio" name="payment_method" value="upi" class="text-primary focus:ring-primary w-4 h-4" checked> <span class="font-medium">UPI</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer p-3 border border-outline-variant rounded-xl hover:bg-gray-50 transition-colors">
+                            <input type="radio" name="payment_method" value="card" class="text-primary focus:ring-primary w-4 h-4"> <span class="font-medium">Credit / Debit Card</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer p-3 border border-outline-variant rounded-xl hover:bg-gray-50 transition-colors">
+                            <input type="radio" name="payment_method" value="cod" class="text-primary focus:ring-primary w-4 h-4"> <span class="font-medium">Cash on Delivery</span>
+                        </label>
+                    </div>
+
+                    <div class="mt-2">
+                        <h4 class="font-bold text-sm mb-2 text-gray-700">Apply Coupon</h4>
+                        <div class="flex gap-2">
+                            <input type="text" id="coupon-code" class="flex-1 p-3 border border-outline-variant rounded-xl font-body-md uppercase focus:outline-none focus:border-primary" placeholder="Enter code">
+                            <button onclick="applyCoupon()" class="bg-[#1c1b1b] text-white px-6 rounded-xl font-bold hover:bg-black transition-colors">Apply</button>
+                        </div>
+                        <div id="coupon-message" class="text-sm hidden mt-2 font-medium"></div>
+                    </div>
+
+                    <button onclick="completeOrder()" id="pay-btn" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700 transition-all shadow-md mt-2 flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined">check_circle</span>
+                        Pay & Place Order
+                    </button>
+                    <div id="loading" class="hidden text-center text-on-surface-variant animate-pulse font-medium mt-2 flex flex-col items-center gap-2">
+                        <span class="material-symbols-outlined animate-spin">refresh</span>
+                        Processing Payment...
+                    </div>
+                </div>
             </div>
         </div>
     </main>
@@ -283,6 +333,9 @@
             window.location.href = 'index.html';
         }
 
+        let currentSubtotal = 0;
+        let isCouponApplied = false;
+
         function renderCart() {
             const cartItemsContainer = document.getElementById('cart-items');
             const cartList = getCart();
@@ -333,25 +386,100 @@
                 cartItemsContainer.appendChild(itemEl);
             });
 
-            document.getElementById('subtotal').innerText = `₹${subtotal.toFixed(2)}`;
-            document.getElementById('total').innerText = `₹${(subtotal + 50).toFixed(2)}`;
+            currentSubtotal = subtotal;
+            updateTotals();
         }
 
-        document.getElementById('checkout-btn').addEventListener('click', () => {
-            const btn = document.getElementById('checkout-btn');
-            const loading = document.getElementById('loading');
-            const locInfo = document.getElementById('location-info');
+        function updateTotals(discountPercent = 0) {
+            const subtotal = currentSubtotal;
+            const delivery = 50;
+            const discount = (subtotal * discountPercent) / 100;
+            const total = subtotal + delivery - discount;
 
-            btn.classList.add('hidden');
+            document.getElementById('subtotal').innerText = `₹${subtotal.toFixed(2)}`;
+            if (discount > 0) {
+                document.getElementById('discount-row').classList.remove('hidden');
+                document.getElementById('discount-row').classList.add('flex');
+                document.getElementById('discount-amount').innerText = `-₹${discount.toFixed(2)}`;
+            } else {
+                document.getElementById('discount-row').classList.add('hidden');
+                document.getElementById('discount-row').classList.remove('flex');
+            }
+            document.getElementById('total').innerText = `₹${total.toFixed(2)}`;
+        }
+
+        function toggleNewAddress() {
+            const select = document.getElementById('saved-address');
+            const input = document.getElementById('new-address-input');
+            if (select.value === 'new') {
+                input.classList.remove('hidden');
+            } else {
+                input.classList.add('hidden');
+            }
+        }
+
+        function startCheckout() {
+            document.getElementById('checkout-start-section').classList.add('hidden');
+            document.getElementById('address-section').classList.remove('hidden');
+            document.getElementById('address-section').classList.add('flex');
+        }
+
+        function proceedToPayment() {
+            const select = document.getElementById('saved-address').value;
+            const input = document.getElementById('new-address-input').value;
+            
+            if (!select && !input) {
+                alert("Please select or enter a delivery address.");
+                return;
+            }
+            if (select === 'new' && input.trim() === '') {
+                alert("Please enter a new delivery address.");
+                return;
+            }
+
+            document.getElementById('address-section').classList.add('hidden');
+            document.getElementById('address-section').classList.remove('flex');
+            document.getElementById('payment-section').classList.remove('hidden');
+            document.getElementById('payment-section').classList.add('flex');
+        }
+
+        function applyCoupon() {
+            const code = document.getElementById('coupon-code').value.trim().toUpperCase();
+            const msg = document.getElementById('coupon-message');
+            msg.classList.remove('hidden');
+
+            if (isCouponApplied) {
+                msg.innerText = "A coupon is already applied!";
+                msg.className = "text-sm mt-2 font-medium text-orange-600";
+                return;
+            }
+
+            let discount = 0;
+            if (code === 'BRIYANIBHAI') discount = 10;
+            else if (code === 'RAHUL FRIEND') discount = 15;
+            else if (code === 'HUNGRY WALA') discount = 5;
+
+            if (discount > 0) {
+                msg.innerText = `Success! ${discount}% OFF applied.`;
+                msg.className = "text-sm mt-2 font-medium text-green-600";
+                isCouponApplied = true;
+                updateTotals(discount);
+            } else {
+                msg.innerText = "Invalid coupon code.";
+                msg.className = "text-sm mt-2 font-medium text-red-600";
+            }
+        }
+
+        function completeOrder() {
+            const payBtn = document.getElementById('pay-btn');
+            const loading = document.getElementById('loading');
+
+            payBtn.classList.add('hidden');
             loading.classList.remove('hidden');
 
             findNearbyDelivery((success, data) => {
                 loading.classList.add('hidden');
                 if (success) {
-                    locInfo.classList.remove('hidden');
-                    document.getElementById('restaurant-name').innerText = data.restaurant;
-                    document.getElementById('restaurant-eta').innerText = `Estimated Delivery: ${data.eta}`;
-
                     // Complete order simulation
                     setTimeout(() => {
                         const modal = document.getElementById('success-modal');
@@ -387,13 +515,13 @@
 
                         saveOrder(getCart(), document.getElementById('total').innerText);
                         clearCart();
-                    }, 2000);
+                    }, 1000); // Faster processing for payment step
                 } else {
-                    alert("Could not find your location. Please enable location services.");
-                    btn.classList.remove('hidden');
+                    alert("Could not process your payment. Please try again.");
+                    payBtn.classList.remove('hidden');
                 }
             });
-        });
+        }
 
         document.addEventListener('DOMContentLoaded', renderCart);
     </script>
