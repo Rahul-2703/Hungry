@@ -343,7 +343,118 @@ const RECIPES = {
             "Add pureed tomatoes and powdered spices. Cook until the oil separates.",
             "Add water, cover, and pressure cook (or slow cook) until the meat is fall-off-the-bone tender. Garnish with coriander."
         ]
-    }
+    },
+
+    "aloo-gobi": {
+        name: "Aloo Gobi",
+        image: "./img/aloo_gobi.png",
+        price: 180,
+        rating: 4.5,
+        time: "30 min",
+        chef: "Chef Sanjeev",
+        description: "A vibrant, delicious-looking bowl of Aloo Gobi (Indian potato and cauliflower curry) with fresh coriander garnish.",
+        calories: "320 kcal",
+        protein: "8g"
+    },
+    "paneer-butter-masala": {
+        name: "Paneer Butter Masala",
+        image: "./img/paneer_butter_masala.png",
+        price: 250,
+        rating: 4.8,
+        time: "40 min",
+        chef: "Chef Kunal",
+        description: "A rich, creamy bowl of Paneer Butter Masala with a swirl of cream and cilantro on top.",
+        calories: "550 kcal",
+        protein: "16g"
+    },
+    "vegetable-biryani": {
+        name: "Vegetable Biryani",
+        image: "./img/vegetable_biryani.png",
+        price: 220,
+        rating: 4.6,
+        time: "45 min",
+        chef: "Chef Vikas",
+        description: "A colorful pot of Vegetable Biryani with saffron rice, mixed vegetables, and cashews.",
+        calories: "450 kcal",
+        protein: "12g"
+    },
+    "dal-makhani": {
+        name: "Dal Makhani",
+        image: "./img/dal_makhani.png",
+        price: 200,
+        rating: 4.9,
+        time: "60 min",
+        chef: "Chef Ranveer",
+        description: "A rich, dark bowl of creamy Dal Makhani (black lentil dal) with butter melting on top.",
+        calories: "400 kcal",
+        protein: "18g"
+    },
+    "chicken-tikka-masala": {
+        name: "Chicken Tikka Masala",
+        image: "./img/chicken_tikka_masala.png",
+        price: 350,
+        rating: 4.9,
+        time: "50 min",
+        chef: "Chef Gordon",
+        description: "A mouth-watering bowl of Chicken Tikka Masala with bright orange gravy and roasted chicken chunks.",
+        calories: "600 kcal",
+        protein: "35g"
+    },
+    "fish-curry": {
+        name: "Fish Curry",
+        image: "./img/fish_curry.png",
+        price: 320,
+        rating: 4.7,
+        time: "45 min",
+        chef: "Chef Pillai",
+        description: "A spicy and tangy South Indian Fish Curry served in an earthen bowl.",
+        calories: "480 kcal",
+        protein: "32g"
+    },
+    "prawn-biryani": {
+        name: "Prawn Biryani",
+        image: "./img/prawn_biryani.png",
+        price: 450,
+        rating: 4.8,
+        time: "55 min",
+        chef: "Chef Rahul",
+        description: "A delicious plate of Prawn Biryani with large roasted prawns on top of aromatic spiced rice.",
+        calories: "650 kcal",
+        protein: "40g"
+    },
+    "mutton-korma": {
+        name: "Mutton Korma",
+        image: "./img/mutton_korma.png",
+        price: 480,
+        rating: 4.9,
+        time: "70 min",
+        chef: "Chef Ali",
+        description: "A rich and creamy bowl of Mutton Korma garnished with almonds and fresh cream.",
+        calories: "720 kcal",
+        protein: "45g"
+    },
+    "chicken-shawarma": {
+        name: "Chicken Shawarma",
+        image: "./img/chicken_shawarma.png",
+        price: 180,
+        rating: 4.6,
+        time: "20 min",
+        chef: "Chef Ziad",
+        description: "A delicious Chicken Shawarma wrap cut in half showing juicy meat, garlic sauce, and pickles.",
+        calories: "450 kcal",
+        protein: "28g"
+    },
+    "egg-curry": {
+        name: "Egg Curry",
+        image: "./img/egg_curry.png",
+        price: 150,
+        rating: 4.5,
+        time: "30 min",
+        chef: "Chef Anita",
+        description: "A delicious bowl of Indian Egg Curry (Anda Curry) with boiled eggs in a thick red tomato gravy.",
+        calories: "350 kcal",
+        protein: "18g"
+    },
 };
 
 // Simulated GPT AI Assistant Function
