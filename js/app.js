@@ -354,7 +354,22 @@ const RECIPES = {
         chef: "Chef Sanjeev",
         description: "A vibrant, delicious-looking bowl of Aloo Gobi (Indian potato and cauliflower curry) with fresh coriander garnish.",
         calories: "320 kcal",
-        protein: "8g"
+        protein: "8g",
+        ingredients: [
+            { name: 'Cauliflower', baseQty: 1, unit: 'head' },
+            { name: 'Potatoes (Boiled)', baseQty: 3, unit: 'pcs' },
+            { name: 'Onions', baseQty: 2, unit: 'pcs' },
+            { name: 'Tomatoes', baseQty: 2, unit: 'pcs' },
+            { name: 'Spices', baseQty: 2, unit: 'Tbsp' }
+        ],
+        steps: [
+            "Cut cauliflower into florets and cube the potatoes.",
+            "Heat oil in a pan, add cumin seeds, and saut chopped onions until golden.",
+            "Add ginger-garlic paste and chopped tomatoes. Cook until soft.",
+            "Add spices (turmeric, coriander, chili powder, garam masala) and mix well.",
+            "Toss in the cauliflower and potatoes. Cover and cook on low heat until tender.",
+            "Garnish with fresh coriander leaves before serving."
+        ]
     },
     "paneer-butter-masala": {
         name: "Paneer Butter Masala",
@@ -365,7 +380,22 @@ const RECIPES = {
         chef: "Chef Kunal",
         description: "A rich, creamy bowl of Paneer Butter Masala with a swirl of cream and cilantro on top.",
         calories: "550 kcal",
-        protein: "16g"
+        protein: "16g",
+        ingredients: [
+            { name: 'Paneer', baseQty: 250, unit: 'g' },
+            { name: 'Tomatoes', baseQty: 4, unit: 'pcs' },
+            { name: 'Onions', baseQty: 1, unit: 'pcs' },
+            { name: 'Cashews', baseQty: 15, unit: 'pcs' },
+            { name: 'Butter', baseQty: 50, unit: 'g' }
+        ],
+        steps: [
+            "Boil tomatoes, onions, and cashews until soft. Blend into a smooth puree.",
+            "Heat butter in a pan, add the puree and cook until oil separates.",
+            "Add spices (kashmiri chili powder, garam masala, salt, and a pinch of sugar).",
+            "Stir in fresh cream and crushed kasuri methi.",
+            "Add paneer cubes and simmer for 5 minutes.",
+            "Serve hot with naan or rice."
+        ]
     },
     "vegetable-biryani": {
         name: "Vegetable Biryani",
@@ -376,7 +406,22 @@ const RECIPES = {
         chef: "Chef Vikas",
         description: "A colorful pot of Vegetable Biryani with saffron rice, mixed vegetables, and cashews.",
         calories: "450 kcal",
-        protein: "12g"
+        protein: "12g",
+        ingredients: [
+            { name: 'Basmati Rice', baseQty: 1, unit: 'KG' },
+            { name: 'Mixed Vegetables', baseQty: 500, unit: 'g' },
+            { name: 'Onions', baseQty: 2, unit: 'pcs' },
+            { name: 'Yogurt', baseQty: 150, unit: 'g' },
+            { name: 'Spices', baseQty: 3, unit: 'Tbsp' }
+        ],
+        steps: [
+            "Soak basmati rice for 30 minutes, then parboil with whole spices.",
+            "Marinate mixed vegetables in yogurt and biryani masala for 30 minutes.",
+            "Fry thinly sliced onions until golden and crisp (birista).",
+            "In a heavy-bottomed pot, layer the marinated vegetables and parboiled rice.",
+            "Top with fried onions, mint, coriander, and saffron milk.",
+            "Seal and cook on dum (low heat) for 25-30 minutes."
+        ]
     },
     "dal-makhani": {
         name: "Dal Makhani",
@@ -387,7 +432,21 @@ const RECIPES = {
         chef: "Chef Ranveer",
         description: "A rich, dark bowl of creamy Dal Makhani (black lentil dal) with butter melting on top.",
         calories: "400 kcal",
-        protein: "18g"
+        protein: "18g",
+        ingredients: [
+            { name: 'Black Lentils', baseQty: 250, unit: 'g' },
+            { name: 'Kidney Beans', baseQty: 50, unit: 'g' },
+            { name: 'Butter', baseQty: 100, unit: 'g' },
+            { name: 'Tomatoes', baseQty: 3, unit: 'pcs' },
+            { name: 'Cream', baseQty: 100, unit: 'ml' }
+        ],
+        steps: [
+            "Soak lentils and kidney beans overnight. Pressure cook until very soft.",
+            "In a heavy pot, heat butter and saut ginger-garlic paste.",
+            "Add tomato puree and cook until butter separates.",
+            "Add the cooked lentils and simmer on low heat for at least 1 hour, stirring occasionally.",
+            "Stir in fresh cream and kasuri methi before serving."
+        ]
     },
     "chicken-tikka-masala": {
         name: "Chicken Tikka Masala",
@@ -398,7 +457,21 @@ const RECIPES = {
         chef: "Chef Gordon",
         description: "A mouth-watering bowl of Chicken Tikka Masala with bright orange gravy and roasted chicken chunks.",
         calories: "600 kcal",
-        protein: "35g"
+        protein: "35g",
+        ingredients: [
+            { name: 'Chicken', baseQty: 500, unit: 'g' },
+            { name: 'Yogurt', baseQty: 150, unit: 'g' },
+            { name: 'Tomatoes', baseQty: 4, unit: 'pcs' },
+            { name: 'Cream', baseQty: 100, unit: 'ml' },
+            { name: 'Tikka Masala Paste', baseQty: 2, unit: 'Tbsp' }
+        ],
+        steps: [
+            "Marinate chicken in yogurt and tikka spices for 2 hours.",
+            "Grill or pan-fry the chicken pieces until slightly charred and cooked through.",
+            "For the sauce, saut onions, garlic, and ginger, then add tomato puree.",
+            "Simmer the sauce with tikka masala paste until thick and fragrant.",
+            "Add the grilled chicken and cream to the sauce and simmer for 10 minutes."
+        ]
     },
     "fish-curry": {
         name: "Fish Curry",
@@ -409,7 +482,21 @@ const RECIPES = {
         chef: "Chef Pillai",
         description: "A spicy and tangy South Indian Fish Curry served in an earthen bowl.",
         calories: "480 kcal",
-        protein: "32g"
+        protein: "32g",
+        ingredients: [
+            { name: 'Fish', baseQty: 500, unit: 'g' },
+            { name: 'Onions', baseQty: 2, unit: 'pcs' },
+            { name: 'Tomatoes', baseQty: 2, unit: 'pcs' },
+            { name: 'Coconut Milk', baseQty: 200, unit: 'ml' },
+            { name: 'Tamarind Paste', baseQty: 1, unit: 'Tbsp' }
+        ],
+        steps: [
+            "Marinate fish pieces with turmeric, salt, and lemon juice for 15 minutes.",
+            "Heat oil, add mustard seeds, curry leaves, and chopped onions.",
+            "Add ginger-garlic paste, tomatoes, and spices. Cook until oil separates.",
+            "Pour in tamarind paste and coconut milk. Bring to a gentle simmer.",
+            "Add fish pieces and cook for 5-7 minutes until the fish is tender."
+        ]
     },
     "prawn-biryani": {
         name: "Prawn Biryani",
@@ -420,7 +507,21 @@ const RECIPES = {
         chef: "Chef Rahul",
         description: "A delicious plate of Prawn Biryani with large roasted prawns on top of aromatic spiced rice.",
         calories: "650 kcal",
-        protein: "40g"
+        protein: "40g",
+        ingredients: [
+            { name: 'Prawns', baseQty: 500, unit: 'g' },
+            { name: 'Basmati Rice', baseQty: 500, unit: 'g' },
+            { name: 'Onions', baseQty: 3, unit: 'pcs' },
+            { name: 'Spices', baseQty: 2, unit: 'Tbsp' },
+            { name: 'Yogurt', baseQty: 100, unit: 'g' }
+        ],
+        steps: [
+            "Clean and devein prawns. Marinate with yogurt and biryani spices.",
+            "Parboil basmati rice with whole spices until 70% cooked.",
+            "Saut sliced onions until golden brown.",
+            "Lightly pan-fry the marinated prawns for 2-3 minutes.",
+            "Layer the prawns, rice, and fried onions in a pot. Dum cook for 20 minutes."
+        ]
     },
     "mutton-korma": {
         name: "Mutton Korma",
@@ -431,7 +532,21 @@ const RECIPES = {
         chef: "Chef Ali",
         description: "A rich and creamy bowl of Mutton Korma garnished with almonds and fresh cream.",
         calories: "720 kcal",
-        protein: "45g"
+        protein: "45g",
+        ingredients: [
+            { name: 'Mutton', baseQty: 500, unit: 'g' },
+            { name: 'Onions', baseQty: 3, unit: 'pcs' },
+            { name: 'Yogurt', baseQty: 200, unit: 'g' },
+            { name: 'Cashews', baseQty: 50, unit: 'g' },
+            { name: 'Spices', baseQty: 2, unit: 'Tbsp' }
+        ],
+        steps: [
+            "Fry thinly sliced onions until golden and crisp. Blend with cashews and yogurt into a paste.",
+            "Heat ghee in a pressure cooker. Add whole spices and mutton pieces.",
+            "Sear the mutton until browned. Add ginger-garlic paste and powdered spices.",
+            "Stir in the onion-yogurt paste and cook until oil separates.",
+            "Add water and pressure cook until the mutton is tender (about 20-30 minutes)."
+        ]
     },
     "chicken-shawarma": {
         name: "Chicken Shawarma",
@@ -442,7 +557,21 @@ const RECIPES = {
         chef: "Chef Ziad",
         description: "A delicious Chicken Shawarma wrap cut in half showing juicy meat, garlic sauce, and pickles.",
         calories: "450 kcal",
-        protein: "28g"
+        protein: "28g",
+        ingredients: [
+            { name: 'Chicken', baseQty: 500, unit: 'g' },
+            { name: 'Pita Bread', baseQty: 4, unit: 'pcs' },
+            { name: 'Yogurt', baseQty: 100, unit: 'g' },
+            { name: 'Garlic Sauce', baseQty: 4, unit: 'Tbsp' },
+            { name: 'Pickles', baseQty: 50, unit: 'g' }
+        ],
+        steps: [
+            "Marinate chicken in yogurt, garlic, lemon juice, and shawarma spices overnight.",
+            "Grill or pan-roast the chicken until charred, then slice thinly.",
+            "Warm the pita breads and spread a generous layer of garlic sauce.",
+            "Add the sliced chicken, pickles, and fresh vegetables.",
+            "Roll tightly and toast on a grill pan before serving."
+        ]
     },
     "egg-curry": {
         name: "Egg Curry",
@@ -453,47 +582,128 @@ const RECIPES = {
         chef: "Chef Anita",
         description: "A delicious bowl of Indian Egg Curry (Anda Curry) with boiled eggs in a thick red tomato gravy.",
         calories: "350 kcal",
-        protein: "18g"
+        protein: "18g",
+        ingredients: [
+            { name: 'Eggs (Boiled)', baseQty: 6, unit: 'pcs' },
+            { name: 'Onions', baseQty: 2, unit: 'pcs' },
+            { name: 'Tomatoes', baseQty: 2, unit: 'pcs' },
+            { name: 'Spices', baseQty: 1, unit: 'Tbsp' },
+            { name: 'Coriander Leaves', baseQty: 1, unit: 'bunch' }
+        ],
+        steps: [
+            "Hard boil the eggs, peel them, and make shallow slits on the whites.",
+            "Lightly fry the boiled eggs in oil with a pinch of turmeric and chili powder.",
+            "In the same pan, saut chopped onions, ginger, and garlic until golden.",
+            "Add tomato puree and cook until the oil separates from the masala.",
+            "Add water to adjust consistency, drop in the eggs, and simmer for 10 minutes."
+        ]
     },
     "mutton-biryani": {
         name: "Mutton Biryani",
         image: "./img/mutton_biryani.png",
         price: 320,
+        oldPrice: 380,
         rating: 4.8,
         time: "45 min",
         chef: "Chef Ali",
         description: "A rich and flavorful traditional Mutton Biryani, layered with fragrant basmati rice and tender pieces of meat.",
         type: "non-veg",
-        ingredients: ["Mutton", "Basmati Rice", "Yogurt", "Onions", "Spices", "Saffron", "Mint"],
-        instructions: [
-            "Marinate the mutton with yogurt, spices, and mint for at least 2 hours.",
-            "Partially cook the basmati rice with whole spices.",
-            "Layer the marinated mutton and rice in a heavy-bottomed pot.",
-            "Drizzle saffron milk and ghee on top.",
-            "Seal the pot and cook on low heat (dum) for 40 minutes.",
-            "Serve hot with raita."
+        ingredients: [
+            { name: 'Mutton (Bone-in)', baseQty: 1, unit: 'KG' },
+            { name: 'Basmati Rice', baseQty: 1, unit: 'KG' },
+            { name: 'Onions (Sliced)', baseQty: 500, unit: 'g' },
+            { name: 'Yogurt', baseQty: 250, unit: 'g' },
+            { name: 'Spices', baseQty: 3, unit: 'Tbsp' }
+        ],
+        steps: [
+            "Marinate mutton with yogurt, papaya paste, and spices for at least 4 hours.",
+            "Parboil soaked basmati rice with whole spices until 70% cooked.",
+            "Fry thinly sliced onions until golden brown (birista).",
+            "In a heavy-bottomed pot, layer the marinated mutton, parboiled rice, and fried onions.",
+            "Seal the pot with dough (dum) and cook on low heat for 1 to 1.5 hours."
         ]
     },
     "chicken-kebab": {
         name: "Chicken Kebab",
         image: "./img/chicken_kebab.png",
         price: 240,
+        oldPrice: 290,
         rating: 4.7,
         time: "30 min",
         chef: "Chef Qureshi",
         description: "Juicy, perfectly spiced Chicken Seekh Kebabs roasted to perfection, served with fresh mint chutney.",
         type: "non-veg",
-        ingredients: ["Minced Chicken", "Onions", "Garlic", "Ginger", "Green Chilies", "Garam Masala", "Coriander"],
-        instructions: [
-            "Mix the minced chicken with finely chopped onions, garlic, ginger, and chilies.",
-            "Add dry spices and fresh coriander, mix well.",
-            "Molding the mixture onto skewers.",
-            "Grill or pan-fry the kebabs until golden brown and cooked through.",
-            "Serve hot with lemon wedges and mint chutney."
+        ingredients: [
+            { name: 'Chicken (Minced)', baseQty: 500, unit: 'g' },
+            { name: 'Onions', baseQty: 1, unit: 'pcs' },
+            { name: 'Coriander Leaves', baseQty: 1, unit: 'bunch' },
+            { name: 'Spices', baseQty: 2, unit: 'Tbsp' },
+            { name: 'Lemon', baseQty: 1, unit: 'pcs' }
+        ],
+        steps: [
+            "Mix minced chicken with finely chopped onions, coriander, green chilies, and spices.",
+            "Knead the mixture well and let it rest in the refrigerator for 30 minutes.",
+            "Shape the mixture onto skewers into long cylindrical kebabs.",
+            "Grill or pan-fry the kebabs, turning occasionally, until cooked and charred on the outside.",
+            "Serve hot with mint chutney and lemon wedges."
         ]
     }
 
-};
+,
+    "salmon": {
+        name: "Honey Glazed Atlantic Salmon",
+        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAIc-zk1PsKRM0LdpaX9AhjeJq0yjfZaOFA-xcxLme8e0LLj3nkIzhkPQ6NSzhHVgXwC4h9XYTGp79mrJfRuaeFnRqd00PmeMwESmcDafDEcLTVRnr4mZWg9Q0uNdNmpMOM055a7SPakGaNwLicahqb7UXvrNbKtt4wJ1ZLP7U2TN9FzjC0AVzimozeKZsqkRXwYhKncIaO6RuRkengMduufBe1v8g5sLuE1vXLiLePfSFY9QVly--k",
+        price: 599,
+        rating: 4.9,
+        time: "30 min",
+        chef: "Chef Mario",
+        description: "Voted #1 trending dish this week. Experience the perfect balance of sweet and savory.",
+        type: "non-veg",
+        calories: "450 kcal",
+        protein: "35g",
+        ingredients: [
+            { name: 'Atlantic Salmon', baseQty: 1, unit: 'Fillet' }, { name: 'Honey', baseQty: 2, unit: 'Tbsp' }, { name: 'Soy Sauce', baseQty: 1, unit: 'Tbsp' }, { name: 'Garlic', baseQty: 2, unit: 'cloves' }, { name: 'Lemon', baseQty: 1, unit: 'pcs' }
+        ],
+        steps: [
+            "Whisk honey, soy sauce, and minced garlic to make the glaze.", "Marinate the salmon fillet in the glaze for 15 minutes.", "Preheat oven or grill to medium-high heat.", "Cook salmon for 10-12 minutes until flaky and caramelized.", "Serve hot with a squeeze of fresh lemon."
+        ]
+    },
+    "monster-burger": {
+        name: "The Monster Burger",
+        image: "./img/burger.jpg",
+        price: 450,
+        rating: 4.7,
+        time: "25 min",
+        chef: "Chef Alex",
+        description: "1,240 orders today. A massive, juicy burger loaded with double patties, bacon, and cheese.",
+        type: "non-veg",
+        calories: "950 kcal",
+        protein: "45g",
+        ingredients: [
+            { name: 'Beef Patties', baseQty: 2, unit: 'pcs' }, { name: 'Burger Buns', baseQty: 1, unit: 'pair' }, { name: 'Cheddar Cheese', baseQty: 2, unit: 'slices' }, { name: 'Bacon', baseQty: 3, unit: 'strips' }, { name: 'Lettuce', baseQty: 1, unit: 'leaf' }
+        ],
+        steps: [
+            "Grill the beef patties on high heat until a crust forms, then flip.", "Add cheddar cheese slices on the patties to melt during the last minute.", "Toast the burger buns until golden brown.", "Fry the bacon strips until crispy.", "Assemble the burger with lettuce, patties, bacon, and your favorite sauces."
+        ]
+    },
+    "buddha-bowl": {
+        name: "Vitality Buddha Bowl",
+        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDORD0wwE9AcRaqR_Qp88dr2FLiu2NPhP7c48TbqojxAd2AGs19d6DoTjgORThIXBTdSpyvZFPgaG35r3e72ENlPF45e4JvaX7yksxO1rWl3Uv21mGiIYVQPYhJkfUjbwXM7pHblcgQ_ogYN75RuX-ER0WcwPAvj40kqsMdLL_ludCL6TcNRLixzBosrtAUdxKXt-ZGn_NP0ooy-oXwahIQmpzjYL05WYKDwhy85sHnrbN1JuvTsfSU",
+        price: 350,
+        rating: 4.8,
+        time: "20 min",
+        chef: "Chef Sarah",
+        description: "Top healthy choice. Packed with quinoa, roasted chickpeas, fresh greens, and tahini dressing.",
+        type: "veg",
+        calories: "420 kcal",
+        protein: "15g",
+        ingredients: [
+            { name: 'Quinoa', baseQty: 100, unit: 'g' }, { name: 'Chickpeas', baseQty: 150, unit: 'g' }, { name: 'Avocado', baseQty: 0.5, unit: 'pcs' }, { name: 'Spinach', baseQty: 50, unit: 'g' }, { name: 'Tahini', baseQty: 2, unit: 'Tbsp' }
+        ],
+        steps: [
+            "Rinse and cook quinoa according to package instructions.", "Toss chickpeas with olive oil and spices, then roast until crispy.", "Slice the avocado and wash the fresh spinach.", "Arrange quinoa, chickpeas, spinach, and avocado in a bowl.", "Drizzle generously with tahini dressing before serving."
+        ]
+    },};
 
 // Simulated GPT AI Assistant Function
 function generateAICookingTips(recipeId, callback) {

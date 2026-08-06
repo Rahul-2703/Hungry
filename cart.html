@@ -89,7 +89,7 @@
                     class="hidden absolute top-0 right-0 bg-secondary text-white text-[10px] w-4 h-4 rounded-full flex justify-center items-center font-bold">0</span>
             </a>
             <a href="#" class="p-2 hover:bg-[#1c1b1b]/10 rounded-full transition-all relative inline-block">
-                <img src="img/user_avatar.png" alt="Profile" class="w-8 h-8 rounded-full object-cover border border-outline-variant shadow-sm" />
+                <img src="./img/RAHUL.jpg" alt="Profile" class="w-8 h-8 rounded-full object-cover border border-outline-variant shadow-sm" />
             </a>
         </div>
     </nav>
@@ -377,10 +377,13 @@
                 subtotal += (item.price * item.quantity);
                 const itemEl = document.createElement('div');
                 itemEl.className = 'flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-outline-variant';
+                const itemImg = item.image ? `<img src="${item.image}" class="w-full h-full object-cover rounded-lg" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />` : '';
+                const fallbackIcon = `<span class="material-symbols-outlined text-outline" style="${item.image ? 'display:none;' : ''}">restaurant</span>`;
                 itemEl.innerHTML = `
                 <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 bg-surface-dim rounded-lg flex items-center justify-center">
-                        <span class="material-symbols-outlined text-outline">restaurant</span>
+                    <div class="w-16 h-16 bg-surface-dim rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                        ${itemImg}
+                        ${fallbackIcon}
                     </div>
                     <div>
                         <h4 class="font-title-lg">${item.name}</h4>
