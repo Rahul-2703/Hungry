@@ -455,6 +455,44 @@ const RECIPES = {
         calories: "350 kcal",
         protein: "18g"
     },
+    "mutton-biryani": {
+        name: "Mutton Biryani",
+        image: "./img/mutton_biryani.png",
+        price: 320,
+        rating: 4.8,
+        time: "45 min",
+        chef: "Chef Ali",
+        description: "A rich and flavorful traditional Mutton Biryani, layered with fragrant basmati rice and tender pieces of meat.",
+        type: "non-veg",
+        ingredients: ["Mutton", "Basmati Rice", "Yogurt", "Onions", "Spices", "Saffron", "Mint"],
+        instructions: [
+            "Marinate the mutton with yogurt, spices, and mint for at least 2 hours.",
+            "Partially cook the basmati rice with whole spices.",
+            "Layer the marinated mutton and rice in a heavy-bottomed pot.",
+            "Drizzle saffron milk and ghee on top.",
+            "Seal the pot and cook on low heat (dum) for 40 minutes.",
+            "Serve hot with raita."
+        ]
+    },
+    "chicken-kebab": {
+        name: "Chicken Kebab",
+        image: "./img/chicken_kebab.png",
+        price: 240,
+        rating: 4.7,
+        time: "30 min",
+        chef: "Chef Qureshi",
+        description: "Juicy, perfectly spiced Chicken Seekh Kebabs roasted to perfection, served with fresh mint chutney.",
+        type: "non-veg",
+        ingredients: ["Minced Chicken", "Onions", "Garlic", "Ginger", "Green Chilies", "Garam Masala", "Coriander"],
+        instructions: [
+            "Mix the minced chicken with finely chopped onions, garlic, ginger, and chilies.",
+            "Add dry spices and fresh coriander, mix well.",
+            "Molding the mixture onto skewers.",
+            "Grill or pan-fry the kebabs until golden brown and cooked through.",
+            "Serve hot with lemon wedges and mint chutney."
+        ]
+    }
+
 };
 
 // Simulated GPT AI Assistant Function

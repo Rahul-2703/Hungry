@@ -94,7 +94,14 @@
         </div>
     </nav>
 
-    <main class="mt-24 px-8 max-w-4xl mx-auto flex-grow w-full">
+    
+    <div class="px-8 mt-24 mb-4 max-w-[1400px] mx-auto w-full">
+        <a href="index.html" class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full text-gray-700 hover:bg-gray-50 hover:text-black transition-all shadow-sm w-fit font-bold text-sm">
+            <span class="material-symbols-outlined text-lg">arrow_back</span>
+            Back
+        </a>
+    </div>
+    <main class="px-8 max-w-4xl mx-auto flex-grow w-full">
         <h1 class="font-headline-lg text-headline-lg mb-8">Your Cart</h1>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -136,7 +143,10 @@
                             <h4 class="font-bold text-sm mb-2 text-gray-700">Apply Coupon</h4>
                             <div class="flex gap-2">
                                 <input type="text" id="coupon-code" class="flex-1 p-3 border border-outline-variant rounded-xl font-body-md uppercase focus:outline-none focus:border-primary" placeholder="Enter code">
-                                <button onclick="applyCoupon()" class="bg-[#1c1b1b] text-white px-6 rounded-xl font-bold hover:bg-black transition-colors">Apply</button>
+                                <button id="apply-coupon-btn" onclick="applyCoupon()" class="bg-[#1c1b1b] text-white px-6 rounded-xl font-bold hover:bg-black transition-colors">Apply</button>
+                                <button id="remove-coupon-btn" onclick="removeCoupon()" class="hidden bg-red-100 text-red-600 px-4 rounded-xl font-bold hover:bg-red-200 transition-colors" title="Remove Coupon">
+                                    <span class="material-symbols-outlined text-lg translate-y-0.5">close</span>
+                                </button>
                             </div>
                             <div id="coupon-message" class="text-sm hidden mt-2 font-medium"></div>
                         </div>
@@ -454,6 +464,15 @@
             document.getElementById('payment-section').classList.add('flex');
         }
 
+        function removeCoupon() {
+            isCouponApplied = false;
+            document.getElementById('coupon-code').value = '';
+            document.getElementById('coupon-message').classList.add('hidden');
+            document.getElementById('apply-coupon-btn').classList.remove('hidden');
+            document.getElementById('remove-coupon-btn').classList.add('hidden');
+            updateTotals(0);
+        }
+
         function applyCoupon() {
             const code = document.getElementById('coupon-code').value.trim().toUpperCase();
             const msg = document.getElementById('coupon-message');
@@ -474,6 +493,8 @@
                 msg.innerText = `Success! ${discount}% OFF applied.`;
                 msg.className = "text-sm mt-2 font-medium text-green-600";
                 isCouponApplied = true;
+                document.getElementById('apply-coupon-btn').classList.add('hidden');
+                document.getElementById('remove-coupon-btn').classList.remove('hidden');
                 updateTotals(discount);
             } else {
                 msg.innerText = "Invalid coupon code.";
