@@ -5,13 +5,16 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Recipe - HUNGRY</title>
-    <link rel="icon" type="image/png" href="img/Eat-removebg-preview.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/Eat-removebg-preview.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="img/Eat-removebg-preview.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/Eat-removebg-preview.png">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap"
         rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
+    <script src="https://code.responsivevoice.org/responsivevoice.js?key=FREE_KEY"></script>
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -165,7 +168,7 @@
                 <button onclick="openAIModal()"
                     class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-4 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 transform hover:-translate-y-1">
                     <span class="material-symbols-outlined text-3xl">smart_toy</span>
-                    <span class="text-xl">Ask Chef AI for Cooking Tips</span>
+                    <span class="text-xl">Ask Hungry AI for Cooking Tips</span>
                 </button>
 
                 <div class="flex justify-between items-end border-b border-outline-variant pb-2">
@@ -336,6 +339,9 @@
         </div>
     </div>
 
+    <!-- Audio Player for Cloud TTS -->
+    <audio id="hungry-tts-player" class="hidden" preload="auto"></audio>
+
     <!-- AI Chef Modal -->
     <div id="ai-modal" class="fixed inset-0 z-[300] bg-black/60 hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[70vh]">
@@ -343,14 +349,14 @@
                 <div class="flex items-center gap-3">
                     <span class="material-symbols-outlined text-4xl">smart_toy</span>
                     <div>
-                        <h3 class="font-bold text-2xl">Chef AI</h3>
+                        <h3 class="font-bold text-2xl">Hungry AI</h3>
                         <p class="text-white/80 text-sm">Your personal sous-chef</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="toggleSpeaker()"
                         class="hover:bg-white/20 rounded-full p-2 transition-colors flex items-center">
-                        <span class="material-symbols-outlined" id="speaker-icon">volume_off</span>
+                        <span class="material-symbols-outlined" id="speaker-icon">volume_up</span>
                     </button>
                     <button onclick="closeAIModal()"
                         class="hover:bg-white/20 rounded-full p-2 transition-colors flex items-center">
@@ -672,62 +678,343 @@
         }
 
         // AI Modal Logic
-        let isAiGenerating = false;
-        function openAIModal() {
+        let currentStepIndex = -1;
+        let cookingLanguage = 'English';
+        let translatedSteps = [];
+
+        async function openAIModal() {
             document.getElementById('ai-modal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
 
-            if (!isAiGenerating) {
-                isAiGenerating = true;
-                const chatBox = document.getElementById('ai-chat-box');
-                chatBox.innerHTML = `
-                <div class="bg-blue-100 p-4 rounded-2xl rounded-tl-none self-start max-w-[80%] shadow-sm">
-                    <div class="flex gap-2">
-                        <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                        <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                        <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                    </div>
+            // Auto-enable speaker mode by default when launching cooking helper
+            isSpeakerOn = true;
+            const speakerIcon = document.getElementById('speaker-icon');
+            if (speakerIcon) speakerIcon.innerText = 'volume_up';
+
+            // Get selected language
+            cookingLanguage = document.getElementById('cook-lang-select').value;
+            
+            let langCode = 'en';
+            if (cookingLanguage === 'Hindi') langCode = 'hi';
+            else if (cookingLanguage === 'Tamil') langCode = 'ta';
+            else if (cookingLanguage === 'Telugu') langCode = 'te';
+            else if (cookingLanguage === 'Malayalam') langCode = 'ml';
+
+            const recipeId = currentRecipeId; // e.g. chicken-biryani
+            const recipe = currentRecipe;
+
+            const chatBox = document.getElementById('ai-chat-box');
+            chatBox.innerHTML = `
+                <div class="bg-blue-100 p-4 rounded-2xl rounded-tl-none self-start max-w-[80%] shadow-sm flex items-center gap-3" id="wizard-loading">
+                    <span class="material-symbols-outlined animate-spin text-blue-600">sync</span>
+                    <span class="text-gray-700 font-medium text-sm">
+                        ${cookingLanguage === 'English' ? 'Translating steps...' : 
+                          cookingLanguage === 'Hindi' ? 'चरणों का अनुवाद किया जा रहा है...' : 
+                          cookingLanguage === 'Tamil' ? 'படிகளை மொழிபெயர்க்கிறது...' : 
+                          cookingLanguage === 'Telugu' ? 'దశలను అనువదిస్తోంది...' : 
+                          'ഘട്ടങ്ങൾ വിവർത്തനം ചെയ്യുന്നു...'}
+                    </span>
                 </div>
             `;
 
-                generateAICookingTips(currentRecipeId, (tip) => {
-                    // Remove typing indicator if exists
-                    if (chatBox.lastElementChild && chatBox.lastElementChild.innerHTML.includes('animate-bounce')) {
-                        chatBox.removeChild(chatBox.lastElementChild);
-                    }
-
-                    // Add message
-                    const msgText = tip.replace('Chef AI: ', '');
-                    chatBox.innerHTML += `
-                    <div class="bg-white border border-gray-200 p-4 rounded-2xl rounded-tl-none self-start max-w-[85%] shadow-sm">
-                        <p class="text-gray-800 font-medium">${msgText}</p>
-                    </div>
-                `;
-
-                    speakText(msgText);
-
-                    // Add typing indicator back for next message unless it's the end
-                    if (!tip.includes("Need help with a specific step?")) {
-                        chatBox.innerHTML += `
-                        <div class="bg-blue-100 p-4 rounded-2xl rounded-tl-none self-start max-w-[80%] shadow-sm">
-                            <div class="flex gap-2">
-                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                            </div>
-                        </div>
-                    `;
-                    }
-
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                });
+            if (RECIPE_TRANSLATIONS[recipeId] && RECIPE_TRANSLATIONS[recipeId][cookingLanguage]) {
+                translatedSteps = RECIPE_TRANSLATIONS[recipeId][cookingLanguage];
+            } else if (recipe) {
+                translatedSteps = [];
+                for (let i = 0; i < recipe.steps.length; i++) {
+                    const translated = await translateText(recipe.steps[i], langCode);
+                    translatedSteps.push(translated);
+                }
+            } else {
+                translatedSteps = [];
             }
+
+            const loader = document.getElementById('wizard-loading');
+            if (loader) loader.remove();
+
+            currentStepIndex = -1; // Reset to start
+            renderWizardWelcome();
+        }
+
+        async function translateText(text, targetLangCode) {
+            if (targetLangCode === 'en') return text;
+            try {
+                const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLangCode}&dt=t&q=${encodeURIComponent(text)}`;
+                const res = await fetch(url);
+                const json = await res.json();
+                return json[0].map(item => item[0]).join('');
+            } catch (e) {
+                console.error("Translation failed: ", e);
+                return text;
+            }
+        }
+
+        function renderWizardWelcome() {
+            const chatBox = document.getElementById('ai-chat-box');
+            chatBox.innerHTML = ''; // Clear box
+
+            const recipeName = currentRecipe ? currentRecipe.name : '';
+
+            // Welcome text templates
+            const welcomes = {
+                English: `Welcome to Hungry AI! Let's cook <b>${recipeName}</b> together. Are you ready to start?`,
+                Hindi: `हंग्री एआई में आपका स्वागत है! चलिए मिलकर <b>${recipeName}</b> बनाते हैं। क्या आप तैयार हैं?`,
+                Tamil: `ஹங்ரி ஏஐ-க்கு வரவேற்கிறோம்! நாம் இணைந்து <b>${recipeName}</b> செய்யலாமா? நீங்கள் தயாராக இருக்கிறீர்களா?`,
+                Telugu: `హంగ్రీ AI కి స్వాగతం! మనము కలిసి <b>${recipeName}</b> చేద్దామా? మీరు సిద్ధంగా ఉన్నారా?`,
+                Malayalam: `ഹംഗ്രി എഐ-ലേക്ക് സ്വാഗതം! നമുക്ക് ചേർന്ന് <b>${recipeName}</b> ഉണ്ടാക്കാം. നിങ്ങൾ തയ്യാറാണോ?`
+            };
+
+            const welcomeText = welcomes[cookingLanguage] || welcomes.English;
+
+            // Render welcoming assistant bubble
+            chatBox.innerHTML += `
+                <div class="bg-white border border-gray-200 p-4 rounded-2xl rounded-tl-none self-start max-w-[85%] shadow-sm mb-2 animate-fade-in">
+                    <p class="text-gray-800 font-medium">${welcomeText}</p>
+                </div>
+            `;
+
+            // Render "Start Cooking" button
+            const startButtons = {
+                English: "Start Cooking",
+                Hindi: "खाना बनाना शुरू करें",
+                Tamil: "சமையலைத் தொடங்கு",
+                Telugu: "వంట ప్రారంభించు",
+                Malayalam: "പാചകം ആരംഭിക്കുക"
+            };
+            const startBtnText = startButtons[cookingLanguage] || startButtons.English;
+
+            chatBox.innerHTML += `
+                <div class="flex gap-2 self-start mt-2 wizard-actions">
+                    <button onclick="startCookingSteps()" class="bg-green-500 text-white font-bold px-6 py-3 rounded-xl hover:bg-green-600 transition-colors shadow-sm flex items-center gap-2">
+                        <span class="material-symbols-outlined">play_arrow</span>
+                        ${startBtnText}
+                    </button>
+                </div>
+            `;
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Speak welcome message
+            speakText(welcomeText);
+        }
+
+        function startCookingSteps() {
+            // Remove previous wizard welcome actions
+            const chatBox = document.getElementById('ai-chat-box');
+            const lastActions = chatBox.querySelector('.wizard-actions:last-of-type');
+            if (lastActions) {
+                lastActions.remove();
+            }
+
+            // Render user response bubble
+            const startButtons = {
+                English: "Start Cooking",
+                Hindi: "खाना बनाना शुरू करें",
+                Tamil: "சமையலைத் தொடங்கு",
+                Telugu: "వంట ప్రారంభించు",
+                Malayalam: "പാചകം ആരംഭിക്കുക"
+            };
+            const startBtnText = startButtons[cookingLanguage] || startButtons.English;
+
+            chatBox.innerHTML += `
+                <div class="bg-blue-600 text-white p-4 rounded-2xl rounded-tr-none self-end max-w-[85%] shadow-sm mt-2">
+                    <p class="font-medium">${startBtnText}</p>
+                </div>
+            `;
+
+            currentStepIndex = 0;
+            renderWizardStep();
+        }
+
+        function renderWizardStep() {
+            const chatBox = document.getElementById('ai-chat-box');
+
+            const stepText = translatedSteps[currentStepIndex];
+            const stepNum = currentStepIndex + 1;
+            const totalSteps = translatedSteps.length;
+
+            // Prefix for step numbers
+            const prefixes = {
+                English: `Step ${stepNum} of ${totalSteps}:`,
+                Hindi: `चरण ${stepNum}/${totalSteps}:`,
+                Tamil: `படி ${stepNum}/${totalSteps}:`,
+                Telugu: `దశ ${stepNum}/${totalSteps}:`,
+                Malayalam: `ഘട്ടം ${stepNum}/${totalSteps}:`
+            };
+            const prefix = prefixes[cookingLanguage] || prefixes.English;
+
+            const fullMsgText = `<b>${prefix}</b><br>${stepText}`;
+
+            // Append assistant bubble
+            chatBox.innerHTML += `
+                <div class="bg-white border border-gray-200 p-4 rounded-2xl rounded-tl-none self-start max-w-[85%] shadow-sm mt-3 animate-fade-in">
+                    <p class="text-gray-800 font-medium">${fullMsgText}</p>
+                </div>
+            `;
+
+            // Button configurations
+            const btnTexts = {
+                English: { next: "Next Step", prev: "Previous Step", repeat: "Repeat Step", finish: "Finish Cooking" },
+                Hindi: { next: "अगला कदम", prev: "पिछला कदम", repeat: "फिर से सुनें", finish: "समाप्त करें" },
+                Tamil: { next: "அடுத்த படி", prev: "முந்தைய படி", repeat: "மீண்டும் கேள்", finish: "முடிக்கவும்" },
+                Telugu: { next: "తదుపరి మెట్టు", prev: "முనుపటి మెట్టు", repeat: "మళ్ళీ విను", finish: "పూర్తి చేయి" },
+                Malayalam: { next: "അടുത്ത ഘട്ടം", prev: "മുൻപത്തെ ഘട്ടം", repeat: "വീണ്ടും കേൾക്കുക", finish: "പൂർത്തിയാക്കുക" }
+            };
+
+            const labels = btnTexts[cookingLanguage] || btnTexts.English;
+
+            let actionButtonsHTML = `<div class="flex flex-wrap gap-2 self-start mt-2 wizard-actions">`;
+
+            if (currentStepIndex > 0) {
+                actionButtonsHTML += `
+                    <button onclick="goToPrevStep()" class="bg-gray-200 text-gray-800 font-bold px-4 py-2.5 rounded-xl hover:bg-gray-300 transition-colors shadow-sm flex items-center gap-1.5 text-sm">
+                        <span class="material-symbols-outlined text-base">navigate_before</span>
+                        ${labels.prev}
+                    </button>
+                `;
+            }
+
+            actionButtonsHTML += `
+                <button onclick="repeatCurrentStep()" class="bg-blue-100 text-blue-700 font-bold px-4 py-2.5 rounded-xl hover:bg-blue-200 transition-colors shadow-sm flex items-center gap-1.5 text-sm">
+                    <span class="material-symbols-outlined text-base">volume_up</span>
+                    ${labels.repeat}
+                </button>
+            `;
+
+            if (currentStepIndex < totalSteps - 1) {
+                actionButtonsHTML += `
+                    <button onclick="goToNextStep()" class="bg-blue-600 text-white font-bold px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-1.5 text-sm">
+                        ${labels.next}
+                        <span class="material-symbols-outlined text-base">navigate_next</span>
+                    </button>
+                `;
+            } else {
+                actionButtonsHTML += `
+                    <button onclick="finishCookingWizard()" class="bg-green-500 text-white font-bold px-5 py-2.5 rounded-xl hover:bg-green-600 transition-colors shadow-sm flex items-center gap-1.5 text-sm">
+                        <span class="material-symbols-outlined text-base">emoji_events</span>
+                        ${labels.finish}
+                    </button>
+                `;
+            }
+
+            actionButtonsHTML += `</div>`;
+
+            chatBox.innerHTML += actionButtonsHTML;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Speak the step text
+            speakText(stepText);
+        }
+
+        function goToNextStep() {
+            const chatBox = document.getElementById('ai-chat-box');
+            const lastActions = chatBox.querySelector('.wizard-actions:last-of-type');
+            if (lastActions) {
+                lastActions.remove();
+            }
+
+            const stepsTexts = {
+                English: "Next Step",
+                Hindi: "अगला कदम",
+                Tamil: "அடுத்த படி",
+                Telugu: "తదుపరి మెట్టు",
+                Malayalam: "அടുത്ത ഘട്ടം"
+            };
+            const msg = stepsTexts[cookingLanguage] || stepsTexts.English;
+
+            chatBox.innerHTML += `
+                <div class="bg-blue-600 text-white p-4 rounded-2xl rounded-tr-none self-end max-w-[85%] shadow-sm mt-2">
+                    <p class="font-medium">${msg}</p>
+                </div>
+            `;
+
+            currentStepIndex++;
+            renderWizardStep();
+        }
+
+        function goToPrevStep() {
+            const chatBox = document.getElementById('ai-chat-box');
+            const lastActions = chatBox.querySelector('.wizard-actions:last-of-type');
+            if (lastActions) {
+                lastActions.remove();
+            }
+
+            const prevTexts = {
+                English: "Previous Step",
+                Hindi: "पिछला कदम",
+                Tamil: "முந்தைய படி",
+                Telugu: "முనుపటి మెట్టు",
+                Malayalam: "മുൻപത്തെ ഘട്ടം"
+            };
+            const msg = prevTexts[cookingLanguage] || prevTexts.English;
+
+            chatBox.innerHTML += `
+                <div class="bg-blue-600 text-white p-4 rounded-2xl rounded-tr-none self-end max-w-[85%] shadow-sm mt-2">
+                    <p class="font-medium">${msg}</p>
+                </div>
+            `;
+
+            currentStepIndex--;
+            renderWizardStep();
+        }
+
+        function repeatCurrentStep() {
+            const stepText = translatedSteps[currentStepIndex];
+            speakText(stepText);
+        }
+
+        function finishCookingWizard() {
+            const chatBox = document.getElementById('ai-chat-box');
+            const lastActions = chatBox.querySelector('.wizard-actions:last-of-type');
+            if (lastActions) {
+                lastActions.remove();
+            }
+
+            const finishUserTexts = {
+                English: "Finish Cooking",
+                Hindi: "खाना बनाना समाप्त करें",
+                Tamil: "சமையலை முடிக்கவும்",
+                Telugu: "వంట పూర్తి చేయి",
+                Malayalam: "പാചകം പൂർത്തിയാക്കുക"
+            };
+            const userMsg = finishUserTexts[cookingLanguage] || finishUserTexts.English;
+
+            chatBox.innerHTML += `
+                <div class="bg-blue-600 text-white p-4 rounded-2xl rounded-tr-none self-end max-w-[85%] shadow-sm mt-2">
+                    <p class="font-medium">${userMsg}</p>
+                </div>
+            `;
+
+            const recipeName = currentRecipe ? currentRecipe.name : '';
+            const congrats = {
+                English: `Perfect! You have completed all the steps. Enjoy your delicious <b>${recipeName}</b>!`,
+                Hindi: `बहुत बढ़िया! आपने सभी चरण पूरे कर लिए हैं। अपने स्वादिष्ट <b>${recipeName}</b> का आनंद लें!`,
+                Tamil: `அருமை! நீங்கள் அனைத்து படிகளையும் முடித்துவிட்டீர்கள். உங்கள் சுவையான <b>${recipeName}</b> ஐ சுவைத்து மகிழுங்கள்!`,
+                Telugu: `అద్భుతం! మీరు అన్ని దశలను పూర్తి చేసారు. మీ రుచికరమైన <b>${recipeName}</b> ఆనందించండి!`,
+                Malayalam: `ഗംഭീരം! നിങ്ങൾ എല്ലാ ഘട്ടങ്ങളും പൂർത്തിയാക്കി. നിങ്ങളുടെ സ്വാദിഷ്ടമായ <b>${recipeName}</b> ആസ്വദിക്കൂ!`
+            };
+
+            const congratsText = congrats[cookingLanguage] || congrats.English;
+
+            chatBox.innerHTML += `
+                <div class="bg-white border border-gray-200 p-4 rounded-2xl rounded-tl-none self-start max-w-[85%] shadow-sm mt-3 animate-fade-in">
+                    <p class="text-gray-800 font-medium">${congratsText}</p>
+                </div>
+            `;
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+            speakText(congratsText);
         }
 
         function closeAIModal() {
             document.getElementById('ai-modal').classList.add('hidden');
             document.body.style.overflow = 'auto';
-            window.speechSynthesis.cancel();
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+            if (window.responsiveVoice) window.responsiveVoice.cancel();
+            if (activeAudio) {
+                activeAudio.pause();
+                activeAudio = null;
+            }
         }
 
         function openCookChoice() {
@@ -765,28 +1052,121 @@
         }
 
         let isSpeakerOn = false;
+        let activeAudio = null;
         function toggleSpeaker() {
             isSpeakerOn = !isSpeakerOn;
             document.getElementById('speaker-icon').innerText = isSpeakerOn ? 'volume_up' : 'volume_off';
             if (!isSpeakerOn) {
-                window.speechSynthesis.cancel();
+                if (window.speechSynthesis) window.speechSynthesis.cancel();
+                if (window.responsiveVoice) window.responsiveVoice.cancel();
+                if (activeAudio) {
+                    activeAudio.pause();
+                    activeAudio = null;
+                }
             }
         }
 
         function speakText(text) {
             if (!isSpeakerOn) return;
-            window.speechSynthesis.cancel();
 
-            const strippedText = text.replace(/<[^>]+>/g, '');
-            const utterance = new SpeechSynthesisUtterance(strippedText);
+            // Stop any active speech across all engines
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+            if (window.responsiveVoice) window.responsiveVoice.cancel();
+            if (activeAudio) {
+                activeAudio.pause();
+                activeAudio = null;
+            }
+
+            const strippedText = text.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim();
+            if (!strippedText) return;
 
             const lang = document.getElementById('cook-lang-select').value;
-            if (lang === 'Hindi') utterance.lang = 'hi-IN';
-            else if (lang === 'Tamil') utterance.lang = 'ta-IN';
-            else if (lang === 'Telugu') utterance.lang = 'te-IN';
-            else if (lang === 'Malayalam') utterance.lang = 'ml-IN';
-            else utterance.lang = 'en-IN';
+            let langCode = 'en';
+            let rvVoice = 'Indian English Female';
 
+            if (lang === 'Hindi') {
+                langCode = 'hi';
+                rvVoice = 'Hindi Female';
+            } else if (lang === 'Tamil') {
+                langCode = 'ta';
+                rvVoice = 'Tamil Female';
+            } else if (lang === 'Telugu') {
+                langCode = 'te';
+                rvVoice = 'Telugu Female';
+            } else if (lang === 'Malayalam') {
+                langCode = 'ml';
+                rvVoice = 'Malayalam Female';
+            }
+
+            // Strategy 1: ResponsiveVoice API (Native Cloud Indian Accent Voices)
+            if (window.responsiveVoice && typeof window.responsiveVoice.speak === 'function') {
+                try {
+                    window.responsiveVoice.speak(strippedText, rvVoice, {
+                        pitch: 1,
+                        rate: 0.9,
+                        volume: 1,
+                        onerror: function() {
+                            console.log("ResponsiveVoice error, trying Google TTS...");
+                            playGoogleTTS(strippedText, langCode, lang);
+                        }
+                    });
+                    return;
+                } catch(e) {
+                    console.log("ResponsiveVoice exception, trying Google TTS...", e);
+                }
+            }
+
+            // Strategy 2: Google TTS Audio Stream
+            playGoogleTTS(strippedText, langCode, lang);
+        }
+
+        function playGoogleTTS(text, langCode, langName) {
+            const player = document.getElementById('hungry-tts-player');
+            const cleanText = text.substring(0, 200);
+            const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${langCode}&client=gtx&q=${encodeURIComponent(cleanText)}`;
+            
+            if (player) {
+                player.src = ttsUrl;
+                player.volume = 1.0;
+                const playPromise = player.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        console.log("Playing Google Cloud Open TTS for " + langName);
+                    }).catch(err => {
+                        console.log("DOM player error, falling back to Web Speech API: ", err);
+                        fallbackWebSpeech(cleanText, langCode, langName);
+                    });
+                }
+            } else {
+                fallbackWebSpeech(cleanText, langCode, langName);
+            }
+        }
+
+        function fallbackWebSpeech(text, langCode, langName) {
+            if (!window.speechSynthesis) return;
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            let voiceCode = 'en-IN';
+            if (langCode === 'hi') voiceCode = 'hi-IN';
+            else if (langCode === 'ta') voiceCode = 'ta-IN';
+            else if (langCode === 'te') voiceCode = 'te-IN';
+            else if (langCode === 'ml') voiceCode = 'ml-IN';
+
+            utterance.lang = voiceCode;
+            utterance.volume = 1.0;
+            utterance.rate = 0.85;
+
+            const voices = window.speechSynthesis.getVoices();
+            const matchedVoice = voices.find(v => {
+                const nameLower = v.name.toLowerCase();
+                const langLower = v.lang.toLowerCase();
+                return langLower === voiceCode.toLowerCase() || 
+                       langLower.startsWith(langCode) || 
+                       nameLower.includes(langName.toLowerCase());
+            });
+            if (matchedVoice) {
+                utterance.voice = matchedVoice;
+            }
             window.speechSynthesis.speak(utterance);
         }
 

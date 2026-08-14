@@ -5,7 +5,9 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Hungry</title>
-    <link rel="icon" type="image/png" href="img/Eat-removebg-preview.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/Eat-removebg-preview.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="img/Eat-removebg-preview.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/Eat-removebg-preview.png">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,800&family=Work+Sans:wght@400;600&family=JetBrains+Mono:wght@500&display=swap"
@@ -79,6 +81,101 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #705d00;
         }
+
+        /* Custom styles for Hero & Rolling Plate */
+        @keyframes floatSlow {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-15px) rotate(3deg);
+            }
+        }
+
+        @keyframes floatMid {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-10px) rotate(-4deg);
+            }
+        }
+
+        @keyframes floatFast {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-7px) rotate(5deg);
+            }
+        }
+
+        .animate-float-slow {
+            animation: floatSlow 6s ease-in-out infinite;
+        }
+
+        .animate-float-mid {
+            animation: floatMid 4s ease-in-out infinite;
+        }
+
+        .animate-float-fast {
+            animation: floatFast 3.5s ease-in-out infinite;
+        }
+
+        @keyframes plateSpin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .animate-plate-spin {
+            animation: plateSpin 120s linear infinite;
+        }
+
+        @keyframes dishRollOut {
+            from {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+
+            to {
+                transform: scale(0.2) rotate(180deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes dishRollIn {
+            from {
+                transform: scale(0.2) rotate(-180deg);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .dish-roll-out {
+            animation: dishRollOut 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        .dish-roll-in {
+            animation: dishRollIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
     </style>
 </head>
 
@@ -87,12 +184,13 @@
     <!-- Loader -->
     <div id="loader"
         class="fixed inset-0 z-[200] bg-white flex items-center justify-center transition-opacity duration-1000 hidden">
-        <video id="loader-video" src="img/Eat.mp4" autoplay muted playsinline class="w-full h-full object-contain"></video>
+        <video id="loader-video" src="img/Eat.mp4" autoplay muted playsinline
+            class="w-full h-full object-contain"></video>
     </div>
 
     <!-- TopNavBar -->
-    <nav
-        class="bg-[#FFD700] text-[#1c1b1b] flex justify-between items-center h-20 px-8 w-full z-50 fixed top-0 shadow-md">
+    <nav id="top-nav"
+        class="bg-transparent text-[#1c1b1b] flex justify-between items-center h-20 px-8 w-full z-50 fixed top-0 transition-all duration-300">
         <div class="flex items-center">
             <button onclick="toggleSidebar()"
                 class="p-2 hover:bg-[#1c1b1b]/10 rounded-full transition-all flex items-center justify-center">
@@ -100,19 +198,29 @@
             </button>
         </div>
 
-        <div class="absolute left-1/2 -translate-x-1/2">
-            <a href="index.html?loader=true" class="flex-shrink-0">
-                <img src="img/Eat-removebg-preview.png" alt="HUNGRY"
-                    class="h-28 drop-shadow-md cursor-pointer hover:scale-105 transition-transform duration-300">
-            </a>
+        <!-- Logo Wrapper (Centered static in header, fades in on scroll for desktop, always visible for mobile) -->
+        <a id="logo-wrapper" href="index.html?loader=true"
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex-shrink-0 flex items-center transition-all duration-300 opacity-100 md:opacity-0 pointer-events-auto md:pointer-events-none">
+            <img id="header-logo" src="img/Eat-removebg-preview.png" alt="HUNGRY"
+                class="h-14 md:h-28 drop-shadow-md cursor-pointer hover:scale-105 transition-all duration-300">
+        </a>
+
+        <!-- Center Links (Centered in header at top, fades out on scroll so center logo shines) -->
+        <div id="center-links"
+            class="absolute left-1/2 -translate-x-1/2 hidden md:flex items-center gap-8 font-semibold text-sm transition-all duration-500 opacity-100 z-10">
+            <a href="index.html" class="hover:text-secondary transition-colors text-[#1c1b1b] font-bold">Home</a>
+            <a href="#explore-recipes-section" class="hover:text-secondary transition-colors text-[#1c1b1b]">Menu</a>
+            <a href="nearby.html" class="hover:text-secondary transition-colors text-[#1c1b1b]">Order Now</a>
         </div>
+
         <div class="flex items-center gap-4">
             <button onclick="openOffersModal()" class="relative p-2 hover:bg-[#1c1b1b]/10 rounded-full transition-all">
                 <span class="material-symbols-outlined text-3xl">notifications</span>
-                <span class="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-[#FFD700]"></span>
+                <span id="nav-notif-dot"
+                    class="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white transition-all duration-300"></span>
             </button>
             <a href="cart.html" class="p-2 hover:bg-[#1c1b1b]/10 rounded-full transition-all relative inline-block">
-                <span class="material-symbols-outlined text-[#1c1b1b]">shopping_cart</span>
+                <span class="material-symbols-outlined text-[#1c1b1b] text-3xl">shopping_cart</span>
                 <span
                     class="cart-badge hidden absolute top-0 right-0 bg-secondary text-white text-[10px] w-4 h-4 rounded-full flex justify-center items-center font-bold">0</span>
             </a>
@@ -123,29 +231,192 @@
         </div>
     </nav>
 
-    <main class="mt-20 min-h-screen">
-        <section class="relative h-[480px] w-full flex items-center overflow-hidden">
-            <div class="absolute inset-0 z-0">
-                <img class="w-full h-full object-cover"
-                    src="https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=1920"
-                    alt="Gourmet spread" />
-                <div class="absolute inset-0 bg-gradient-to-r from-background via-background/60 to-transparent"></div>
+    <main class="mt-0 min-h-screen">
+        <section
+            class="relative min-h-[600px] w-full flex flex-col md:flex-row items-start justify-between overflow-hidden bg-white pt-24 md:pt-16 pb-8 md:pb-12">
+            <!-- Background Yellow Wave (Right Side) -->
+            <div class="absolute inset-y-0 right-0 w-full md:w-[45%] lg:w-[48%] h-full z-0 pointer-events-none">
+                <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <!-- Curve matches Image 1 style -->
+                    <path class="hidden md:block" d="M 30,0 C 10,25 55,60 15,100 L 100,100 L 100,0 Z" fill="#FFD700" />
+                    <path class="block md:hidden" d="M 0,40 Q 50,25 100,40 L 100,100 L 0,100 Z" fill="#FFD700" />
+                </svg>
             </div>
-            <div class="relative z-10 px-8 max-w-2xl">
+
+            <!-- Accent decorative elements like Image 1 -->
+            <div class="absolute inset-0 pointer-events-none z-10">
+                <!-- Accent curved stroke line left of the plate -->
+                <svg class="absolute top-[35%] right-[42%] w-[80px] h-[150px] opacity-30 hidden md:block"
+                    viewBox="0 0 100 100">
+                    <path d="M 90,10 A 50,50 0 0,0 80,90" fill="none" stroke="#1c1b1b" stroke-width="3"
+                        stroke-linecap="round" />
+                </svg>
+                <!-- Accent curved stroke line top right of the plate -->
+                <svg class="absolute top-[12%] right-[10%] w-[100px] h-[50px] opacity-30 hidden md:block"
+                    viewBox="0 0 100 100">
+                    <path d="M 10,90 Q 50,40 90,10" fill="none" stroke="#1c1b1b" stroke-width="3"
+                        stroke-linecap="round" />
+                </svg>
+
+                <!-- Red arrow pointing to the plate -->
+                <svg class="absolute top-[20%] right-[38%] w-[120px] h-[80px] hidden lg:block" viewBox="0 0 100 100">
+                    <path d="M 10,20 Q 50,10 70,55" fill="none" stroke="#bc0008" stroke-width="2.5"
+                        stroke-dasharray="4,4" />
+                    <path d="M 64,48 L 72,57 L 74,44" fill="none" stroke="#bc0008" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+
+                <!-- Floating leaves and olives (SVG drawn for high-res vector perfection) -->
+                <!-- Olive branch at bottom left -->
+                <svg class="absolute bottom-[5%] left-[2%] w-[120px] h-[120px] hidden md:block select-none pointer-events-none"
+                    viewBox="0 0 100 100">
+                    <path d="M 10,90 Q 40,70 90,40" fill="none" stroke="#6b4c35" stroke-width="2.5"
+                        stroke-linecap="round" />
+                    <path d="M 40,70 C 40,55 55,50 65,55 C 55,65 45,75 40,70 Z" fill="#4C8235" />
+                    <path d="M 40,70 Q 52,62 65,55" fill="none" stroke="#376124" stroke-width="1" />
+                    <path d="M 60,56 C 60,40 75,35 85,40 C 75,50 65,60 60,56 Z" fill="#4C8235" />
+                    <path d="M 60,56 Q 72,48 85,40" fill="none" stroke="#376124" stroke-width="1" />
+                    <ellipse cx="48" cy="78" rx="8" ry="11" transform="rotate(-30 48 78)" fill="#A2B93A"
+                        stroke="#7E9426" stroke-width="1.5" />
+                    <circle cx="45" cy="74" r="2" fill="#fff" opacity="0.6" />
+                    <ellipse cx="72" cy="62" rx="8" ry="11" transform="rotate(20 72 62)" fill="#A2B93A" stroke="#7E9426"
+                        stroke-width="1.5" />
+                    <circle cx="70" cy="58" r="2" fill="#fff" opacity="0.6" />
+                </svg>
+
+
+
+                <!-- Floating leaf middle left -->
+                <svg class="absolute bottom-[35%] left-[45%] w-[45px] h-[45px] opacity-70 animate-float-mid hidden md:block"
+                    viewBox="0 0 100 100" style="animation-delay: 1.5s;">
+                    <path d="M 90,90 C 70,50 40,40 10,10 C 30,50 60,70 90,90 Z" fill="#5C933C" />
+                    <path d="M 10,10 Q 50,50 90,90" fill="none" stroke="#3E6B24" stroke-width="1" />
+                </svg>
+
+                <!-- Floating olive middle left -->
+                <svg class="absolute bottom-[28%] left-[40%] w-[25px] h-[30px] opacity-80 animate-float-fast hidden md:block"
+                    viewBox="0 0 100 100" style="animation-delay: 0.5s;">
+                    <ellipse cx="50" cy="50" rx="30" ry="40" transform="rotate(45 50 50)" fill="#A2B93A"
+                        stroke="#7E9426" stroke-width="4" />
+                    <circle cx="40" cy="40" r="8" fill="#fff" opacity="0.6" />
+                </svg>
+
+                <!-- Floating leaf right side (near yellow wave border) -->
+                <svg class="absolute top-[28%] right-[32%] w-[40px] h-[40px] opacity-80 animate-float-slow hidden lg:block"
+                    viewBox="0 0 100 100" style="animation-delay: 2s;">
+                    <path d="M 10,10 C 40,20 60,50 90,90 C 60,80 30,50 10,10 Z" fill="#4C8235" />
+                    <path d="M 10,10 Q 50,50 90,90" fill="none" stroke="#376124" stroke-width="1" />
+                </svg>
+
+                <!-- Floating olive and leaves on the right (yellow section) -->
+                <svg class="absolute top-[35%] right-[3%] w-[70px] h-[70px] opacity-90 animate-float-mid hidden md:block"
+                    viewBox="0 0 100 100">
+                    <path d="M 90,10 C 60,20 40,50 10,90 C 30,70 70,50 90,10 Z" fill="#4C8235" />
+                    <path d="M 90,10 Q 50,50 10,90" fill="none" stroke="#376124" stroke-width="1.5" />
+                    <ellipse cx="40" cy="40" rx="10" ry="14" transform="rotate(-20 40 40)" fill="#A2B93A"
+                        stroke="#7E9426" stroke-width="2" />
+                </svg>
+            </div>
+
+            <!-- Left Content (White Background Side) -->
+            <div
+                class="relative z-10 px-8 md:px-12 lg:px-20 max-w-2xl lg:max-w-3xl w-full md:w-1/2 flex-shrink-0 flex flex-col items-center md:items-start text-center md:text-left">
+                <!-- Desktop Hero Logo & Leaf (Visible on desktop/tablet, hidden on mobile) -->
+                <div class="hidden md:flex items-center gap-10 mb-4 z-20">
+                    <!-- Floating leaf -->
+                    <svg class="w-[50px] h-[50px] opacity-80 animate-float-slow" viewBox="0 0 100 100">
+                        <path d="M 10,90 C 20,40 60,20 90,10 C 80,50 40,80 10,90 Z" fill="#4C8235" />
+                        <path d="M 10,90 Q 50,50 90,10" fill="none" stroke="#376124" stroke-width="1.5" />
+                    </svg>
+                    <!-- HUNGRY Logo (increased size by 10% from h-32 md:h-40 lg:h-44 to h-36 md:h-44 lg:h-48) -->
+                    <a href="index.html?loader=true" class="flex-shrink-0">
+                        <img src="img/Eat-removebg-preview.png"
+                            class="h-36 md:h-44 lg:h-48 drop-shadow-md hover:scale-105 transition-transform duration-300"
+                            alt="HUNGRY">
+                    </a>
+                </div>
+
+                <!-- Floating badge/pre-title -->
+                <div
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-secondary rounded-full font-bold text-xs uppercase tracking-wider mb-6 border border-red-100 shadow-sm animate-pulse">
+                    <span class="material-symbols-outlined text-sm">local_fire_department</span>
+                    Delicious & Fresh
+                </div>
+
                 <h1 class="font-display-lg text-display-lg text-on-background mb-4 leading-tight">
-                    What's on the <br /><span class="text-secondary italic">Menu Today?</span>
+                    <span class="whitespace-nowrap">What's on the</span> <br />
+                    <span class="text-secondary italic relative inline-block mt-1">
+                        Menu Today?
+                        <!-- Curved underline accent -->
+                        <svg class="absolute left-0 -bottom-2 w-full h-[8px] text-secondary" viewBox="0 0 100 10"
+                            preserveAspectRatio="none">
+                            <path d="M 0,5 Q 50,9 100,5" fill="none" stroke="currentColor" stroke-width="3"
+                                stroke-linecap="round" />
+                        </svg>
+                    </span>
                 </h1>
-                <p class="font-body-lg text-body-lg text-on-surface-variant mb-8 max-w-md">
+
+                <p class="font-body-lg text-body-lg text-on-surface-variant mb-8 max-w-lg leading-relaxed">
                     Cook it yourself with our step-by-step recipes, or simply order delivery from local favorites!
                 </p>
+
+                <!-- Search Bar (matching Image 2 exactly) -->
                 <div
-                    class="flex items-center bg-white rounded-full p-2 shadow-xl border border-outline-variant max-w-xl">
-                    <span class="material-symbols-outlined ml-4 text-outline">search</span>
+                    class="flex items-center bg-white rounded-full p-2.5 shadow-[0_15px_35px_rgba(112,93,0,0.15)] border border-outline-variant w-full max-w-xl transition-all duration-300 focus-within:shadow-[0_20px_40px_rgba(112,93,0,0.22)] focus-within:scale-[1.02]">
+                    <span class="material-symbols-outlined ml-4 text-outline text-2xl">search</span>
                     <input id="search-input" onkeyup="handleSearch()"
-                        class="flex-1 bg-transparent border-none focus:ring-0 font-body-md px-4 placeholder:text-outline/60 w-full outline-none"
+                        class="flex-1 bg-transparent border-none focus:ring-0 font-body-md px-4 placeholder:text-outline/50 w-full outline-none text-on-surface text-base"
                         placeholder="Search recipes or restaurants..." type="text" />
                     <button onclick="handleSearch()"
-                        class="bg-primary text-on-primary px-8 py-3 rounded-full font-bold hover:bg-primary/90 transition-colors">Search</button>
+                        class="bg-primary text-on-primary px-10 py-3.5 rounded-full font-bold hover:bg-primary/90 hover:scale-[1.03] active:scale-[0.98] transition-all shadow-md">
+                        Search
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Content (Yellow Background Side, contains rolling dish) -->
+            <div
+                class="relative z-10 w-full md:w-[45%] lg:w-[48%] flex justify-center items-center h-full mt-6 md:mt-16 px-4 py-6">
+                <!-- Floating card/badge: 20-min delivery (Visible on all screens: mobile, tablet, desktop) -->
+                <div
+                    class="absolute top-[0%] left-2 sm:left-[5%] bg-white rounded-xl sm:rounded-2xl p-2.5 sm:p-4 shadow-xl z-20 flex items-center gap-2 sm:gap-3 animate-float-mid">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-[#FFD700] rounded-full flex items-center justify-center flex-shrink-0">
+                        <span class="material-symbols-outlined text-on-surface text-sm sm:text-base">pace</span>
+                    </div>
+                    <div>
+                        <p class="text-[9px] sm:text-[10px] text-gray-400 font-bold uppercase tracking-wider">Fastest Delivery</p>
+                        <p class="text-xs sm:text-sm font-black text-on-surface">20 Mins</p>
+                    </div>
+                </div>
+
+                <!-- Floating card/badge: Rating (Visible on all screens: mobile, tablet, desktop) -->
+                <div class="absolute bottom-[0%] right-2 sm:right-[5%] bg-white rounded-xl sm:rounded-2xl p-2.5 sm:p-4 shadow-xl z-20 flex items-center gap-2 sm:gap-3 animate-float-slow"
+                    style="animation-delay: 1s;">
+                    <div
+                        class="w-8 h-8 sm:w-10 sm:h-10 bg-yellow-400 rounded-full flex items-center justify-center text-white shadow-sm flex-shrink-0">
+                        <span class="material-symbols-outlined text-white text-sm sm:text-base">star</span>
+                    </div>
+                    <div>
+                        <p class="text-[9px] sm:text-[10px] text-gray-400 font-bold uppercase tracking-wider">Rating</p>
+                        <p class="text-xs sm:text-sm font-black text-black">4.9 <span class="text-yellow-500">★★★★★</span></p>
+                    </div>
+                </div>
+
+                <!-- Plate Container with Shadow and 3D Bezels (Always a Perfect Circle) -->
+                <div
+                    class="relative w-[260px] h-[260px] sm:w-[320px] sm:h-[320px] md:w-[360px] md:h-[360px] lg:w-[420px] lg:h-[420px] flex-shrink-0 aspect-square rounded-full bg-gradient-to-br from-[#1c1b1b] to-[#0a0a0a] shadow-[0_30px_70px_rgba(0,0,0,0.5),_inset_0_3px_10px_rgba(255,255,255,0.1),_inset_0_-10px_20px_rgba(0,0,0,0.8)] border-[8px] sm:border-[10px] border-[#2c2b2b] flex items-center justify-center overflow-hidden z-10">
+                    <!-- Inner plate rim -->
+                    <div
+                        class="absolute inset-[10px] sm:inset-[15px] rounded-full border-2 border-black/40 bg-gradient-to-br from-[#222] to-[#151515] shadow-inner">
+                    </div>
+
+                    <!-- Dish Images (swapped via JS, crossfading) -->
+                    <img id="dish-img-active" src="img/masala_dosa.png"
+                        class="absolute w-[92%] h-[92%] aspect-square object-cover rounded-full select-none pointer-events-none drop-shadow-[0_15px_20px_rgba(0,0,0,0.6)] z-20"
+                        alt="Dish" />
+                    <img id="dish-img-next" src="img/chicken_kebab.png"
+                        class="absolute w-[92%] h-[92%] aspect-square object-cover rounded-full select-none pointer-events-none drop-shadow-[0_15px_20px_rgba(0,0,0,0.6)] opacity-0 z-20"
+                        alt="Next Dish" />
                 </div>
             </div>
         </section>
@@ -726,6 +997,106 @@
 
             // Apply initial diet filter
             handleSearch();
+
+            // Scroll nav bar transition
+            const topNav = document.getElementById('top-nav');
+            const notifDot = document.getElementById('nav-notif-dot');
+            const logoWrapper = document.getElementById('logo-wrapper');
+            const centerLinks = document.getElementById('center-links');
+
+            function handleScroll() {
+                const isMobile = window.innerWidth < 768;
+                if (window.scrollY > 40) {
+                    topNav.classList.remove('bg-transparent', 'shadow-none');
+                    topNav.classList.add('bg-[#FFD700]', 'shadow-md');
+                    if (notifDot) {
+                        notifDot.classList.remove('border-white');
+                        notifDot.classList.add('border-[#FFD700]');
+                    }
+                    if (centerLinks) {
+                        centerLinks.classList.remove('opacity-100');
+                        centerLinks.classList.add('opacity-0', 'pointer-events-none');
+                    }
+                    if (logoWrapper) {
+                        logoWrapper.classList.remove('opacity-0', 'pointer-events-none', 'md:opacity-0', 'md:pointer-events-none');
+                        logoWrapper.classList.add('opacity-100', 'pointer-events-auto', 'md:opacity-100', 'md:pointer-events-auto');
+                    }
+                } else {
+                    topNav.classList.remove('bg-[#FFD700]', 'shadow-md');
+                    topNav.classList.add('bg-transparent', 'shadow-none');
+                    if (notifDot) {
+                        notifDot.classList.remove('border-[#FFD700]');
+                        notifDot.classList.add('border-white');
+                    }
+                    if (centerLinks) {
+                        centerLinks.classList.remove('opacity-0', 'pointer-events-none');
+                        centerLinks.classList.add('opacity-100');
+                    }
+                    if (logoWrapper) {
+                        if (isMobile) {
+                            logoWrapper.classList.remove('opacity-0', 'pointer-events-none');
+                            logoWrapper.classList.add('opacity-100', 'pointer-events-auto');
+                        } else {
+                            logoWrapper.classList.remove('opacity-100', 'pointer-events-auto', 'md:opacity-100', 'md:pointer-events-auto');
+                            logoWrapper.classList.add('opacity-0', 'pointer-events-none', 'md:opacity-0', 'md:pointer-events-none');
+                        }
+                    }
+                }
+            }
+            window.addEventListener('scroll', handleScroll);
+            window.addEventListener('resize', handleScroll);
+            handleScroll(); // Run initially to ensure correct state on refresh
+
+            // Automatic rotating dish plate slideshow
+            const dishes = [
+                "img/masala_dosa.png",
+                "img/chicken_kebab.png",
+                "img/chicken_shawarma.png",
+                "img/chicken_tikka_masala.png",
+                "img/chole_bhature.png",
+                "img/dal_makhani.png",
+                "img/egg_curry.png",
+                "img/fish_curry.png",
+                "img/gulab_jamun.png",
+                "img/mutton_biryani.png",
+                "img/mutton_curry.png",
+                "img/mutton_korma.png",
+                "img/palak_paneer.png",
+                "img/paneer_butter_masala.png",
+                "img/prawn_biryani.png",
+                "img/tandoori_chicken.png",
+                "img/vada_pav.png",
+                "img/vegetable_biryani.png",
+                "img/aloo_gobi.png"
+            ];
+
+            let dishIdx = 0;
+            const activeImg = document.getElementById('dish-img-active');
+            const nextImg = document.getElementById('dish-img-next');
+            let isTransitioning = false;
+
+            setInterval(() => {
+                if (isTransitioning || !activeImg || !nextImg) return;
+                isTransitioning = true;
+
+                dishIdx = (dishIdx + 1) % dishes.length;
+                const nextSrc = dishes[dishIdx];
+
+                // Set the next image src
+                nextImg.src = nextSrc;
+
+                // Apply animation classes
+                activeImg.className = "absolute w-[92%] h-[92%] aspect-square object-cover rounded-full select-none pointer-events-none drop-shadow-[0_15px_20px_rgba(0,0,0,0.6)] z-20 dish-roll-out";
+                nextImg.className = "absolute w-[92%] h-[92%] aspect-square object-cover rounded-full select-none pointer-events-none drop-shadow-[0_15px_20px_rgba(0,0,0,0.6)] z-20 dish-roll-in";
+
+                setTimeout(() => {
+                    // Swap src and reset classes
+                    activeImg.src = nextSrc;
+                    activeImg.className = "absolute w-[92%] h-[92%] aspect-square object-cover rounded-full select-none pointer-events-none drop-shadow-[0_15px_20px_rgba(0,0,0,0.6)] z-20";
+                    nextImg.className = "absolute w-[92%] h-[92%] aspect-square object-cover rounded-full select-none pointer-events-none drop-shadow-[0_15px_20px_rgba(0,0,0,0.6)] z-20 opacity-0";
+                    isTransitioning = false;
+                }, 400); // matches the 0.4s keyframe duration
+            }, 1400); // Swap dish every 1.4 seconds (1.0s display + 0.4s rolling transition)
         });
     </script>
 </body>
