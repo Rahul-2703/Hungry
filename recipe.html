@@ -5,9 +5,10 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Recipe - HUNGRY</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="img/Eat-removebg-preview.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="img/Eat-removebg-preview.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="img/Eat-removebg-preview.png">
+    <link rel="icon" type="image/png" sizes="any" href="img/Eat-removebg-preview.png?v=2">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/Eat-removebg-preview.png?v=2">
+    <link rel="icon" type="image/png" sizes="192x192" href="img/Eat-removebg-preview.png?v=2">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/Eat-removebg-preview.png?v=2">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap"
@@ -89,6 +90,19 @@
             100% {
                 background-color: transparent;
             }
+        @keyframes martGlowFilter {
+            0%, 100% {
+                filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.8)) drop-shadow(0 0 14px rgba(255, 215, 0, 0.9));
+                transform: scale(1);
+            }
+            50% {
+                filter: drop-shadow(0 0 16px rgba(239, 68, 68, 1)) drop-shadow(0 0 25px rgba(255, 215, 0, 1));
+                transform: scale(1.06);
+            }
+        }
+
+        .mart-glow-plain {
+            animation: martGlowFilter 2.2s ease-in-out infinite;
         }
     </style>
 </head>
@@ -97,17 +111,29 @@
 
     <nav
         class="bg-[#FFD700] text-[#1c1b1b] flex justify-between items-center h-20 px-8 w-full z-50 fixed top-0 shadow-md">
-        <div class="flex items-center">
+        <div class="flex items-center gap-2 sm:gap-3">
             <button onclick="toggleSidebar()"
                 class="p-2 hover:bg-[#1c1b1b]/10 rounded-full transition-all flex items-center justify-center">
                 <span class="material-symbols-outlined text-3xl">menu</span>
             </button>
+
+            <!-- Hungry Mart Badge (Desktop only in header, hidden on mobile/tablet to prevent text overlap) -->
+            <a href="mart.html" class="hidden lg:flex items-center gap-3 relative group">
+                <img src="img/HUNGRY MART.png" alt="HUNGRY MART" class="h-12 sm:h-14 w-auto object-contain mart-glow-plain transition-transform group-hover:scale-105" />
+                
+                <div class="flex items-center">
+                    <span class="inline-flex items-center justify-center gap-2 w-[180px] sm:w-[210px] h-10 px-4 bg-red-600 text-white font-extrabold text-xs sm:text-sm rounded-full shadow-lg border border-red-400 uppercase tracking-wider overflow-hidden select-none">
+                        <span class="material-symbols-outlined text-sm sm:text-base text-yellow-300 animate-bounce flex-shrink-0">bolt</span>
+                        <span class="mart-ticker-label transition-all duration-300 inline-block text-center whitespace-nowrap">Hungry Mart</span>
+                    </span>
+                </div>
+            </a>
         </div>
 
         <div class="absolute left-1/2 -translate-x-1/2">
             <a href="index.html?loader=true" class="flex-shrink-0">
-                <img src="img/Eat-removebg-preview.png" alt="HUNGRY"
-                    class="h-28 drop-shadow-md cursor-pointer hover:scale-105 transition-transform duration-300">
+                <img src="img/Eat-removebg-preview.png?v=2" alt="HUNGRY"
+                    class="h-10 sm:h-12 md:h-24 max-w-[130px] sm:max-w-none drop-shadow-md cursor-pointer hover:scale-105 transition-transform duration-300">
             </a>
         </div>
         <div class="flex items-center gap-4">
@@ -253,56 +279,103 @@
 
     <!-- Cross Sell Popup -->
     <div id="cross-sell-popup"
-        class="fixed bottom-4 right-4 z-[200] bg-white p-5 rounded-2xl shadow-2xl border border-outline-variant transform translate-y-[150%] opacity-0 transition-all duration-500 w-80 flex flex-col gap-4">
-        <div class="flex items-center gap-2 text-green-600 font-bold">
-            <span class="material-symbols-outlined">check_circle</span>
-            <span class="text-lg">Added to Cart!</span>
+        class="fixed bottom-4 right-4 z-[200] bg-white p-5 rounded-2xl shadow-2xl border border-outline-variant transform translate-y-[150%] opacity-0 transition-all duration-500 w-80 sm:w-96 flex flex-col gap-4 max-h-[85vh] overflow-y-auto">
+        <div class="flex items-center justify-between text-green-600 font-bold">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined">check_circle</span>
+                <span class="text-lg">Added to Cart!</span>
+            </div>
+            <button onclick="closeCrossSell()" class="text-gray-400 hover:text-gray-600 p-1">
+                <span class="material-symbols-outlined text-base">close</span>
+            </button>
         </div>
 
         <div class="border-t border-b border-gray-100 py-3 flex flex-col gap-3">
             <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wide">Frequently bought together</h4>
 
-            <div class="flex items-center justify-between gap-3">
+            <!-- Item 1: Extra Raita -->
+            <div class="flex items-center justify-between gap-3 p-1.5 hover:bg-gray-50 rounded-xl transition-colors">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gray-100 rounded-md flex items-center justify-center flex-shrink-0">
-                        <span class="material-symbols-outlined text-gray-400">local_dining</span>
-                    </div>
+                    <img src="img/addon_raita.png" class="w-12 h-12 rounded-xl object-cover shadow-sm border border-gray-100 flex-shrink-0" alt="Extra Raita" />
                     <div class="flex flex-col">
                         <span class="text-sm font-bold text-gray-800">Extra Raita</span>
                         <span class="text-xs font-bold text-primary">₹20.00</span>
                     </div>
                 </div>
-                <button onclick="addCrossSell('Extra Raita', 20, this)"
-                    class="bg-primary/10 text-primary w-8 h-8 rounded flex items-center justify-center hover:bg-primary/20 transition-colors">
+                <button onclick="addCrossSell('Extra Raita', 20, 'img/addon_raita.png', this)"
+                    class="bg-primary/10 text-primary w-8 h-8 rounded-lg flex items-center justify-center hover:bg-primary/20 transition-colors flex-shrink-0">
                     <span class="material-symbols-outlined text-sm">add</span>
                 </button>
             </div>
 
-            <div class="flex items-center justify-between gap-3">
+            <!-- Item 2: Coke (250ml) -->
+            <div class="flex items-center justify-between gap-3 p-1.5 hover:bg-gray-50 rounded-xl transition-colors">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gray-100 rounded-md flex items-center justify-center flex-shrink-0">
-                        <span class="material-symbols-outlined text-gray-400">local_drink</span>
-                    </div>
+                    <img src="img/addon_coke.png" class="w-12 h-12 rounded-xl object-cover shadow-sm border border-gray-100 flex-shrink-0" alt="Coke (250ml)" />
                     <div class="flex flex-col">
                         <span class="text-sm font-bold text-gray-800">Coke (250ml)</span>
                         <span class="text-xs font-bold text-primary">₹40.00</span>
                     </div>
                 </div>
-                <button onclick="addCrossSell('Coke (250ml)', 40, this)"
-                    class="bg-primary/10 text-primary w-8 h-8 rounded flex items-center justify-center hover:bg-primary/20 transition-colors">
+                <button onclick="addCrossSell('Coke (250ml)', 40, 'img/addon_coke.png', this)"
+                    class="bg-primary/10 text-primary w-8 h-8 rounded-lg flex items-center justify-center hover:bg-primary/20 transition-colors flex-shrink-0">
+                    <span class="material-symbols-outlined text-sm">add</span>
+                </button>
+            </div>
+
+            <!-- Item 3: Butter Garlic Naan -->
+            <div class="flex items-center justify-between gap-3 p-1.5 hover:bg-gray-50 rounded-xl transition-colors">
+                <div class="flex items-center gap-3">
+                    <img src="img/addon_naan.png" class="w-12 h-12 rounded-xl object-cover shadow-sm border border-gray-100 flex-shrink-0" alt="Butter Garlic Naan" />
+                    <div class="flex flex-col">
+                        <span class="text-sm font-bold text-gray-800">Butter Garlic Naan</span>
+                        <span class="text-xs font-bold text-primary">₹35.00</span>
+                    </div>
+                </div>
+                <button onclick="addCrossSell('Butter Garlic Naan', 35, 'img/addon_naan.png', this)"
+                    class="bg-primary/10 text-primary w-8 h-8 rounded-lg flex items-center justify-center hover:bg-primary/20 transition-colors flex-shrink-0">
+                    <span class="material-symbols-outlined text-sm">add</span>
+                </button>
+            </div>
+
+            <!-- Item 4: Gulab Jamun (2 pcs) -->
+            <div class="flex items-center justify-between gap-3 p-1.5 hover:bg-gray-50 rounded-xl transition-colors">
+                <div class="flex items-center gap-3">
+                    <img src="img/gulab_jamun.png" class="w-12 h-12 rounded-xl object-cover shadow-sm border border-gray-100 flex-shrink-0" alt="Gulab Jamun (2 pcs)" />
+                    <div class="flex flex-col">
+                        <span class="text-sm font-bold text-gray-800">Gulab Jamun (2 pcs)</span>
+                        <span class="text-xs font-bold text-primary">₹50.00</span>
+                    </div>
+                </div>
+                <button onclick="addCrossSell('Gulab Jamun (2 pcs)', 50, 'img/gulab_jamun.png', this)"
+                    class="bg-primary/10 text-primary w-8 h-8 rounded-lg flex items-center justify-center hover:bg-primary/20 transition-colors flex-shrink-0">
+                    <span class="material-symbols-outlined text-sm">add</span>
+                </button>
+            </div>
+
+            <!-- Item 5: Vada Pav Side -->
+            <div class="flex items-center justify-between gap-3 p-1.5 hover:bg-gray-50 rounded-xl transition-colors">
+                <div class="flex items-center gap-3">
+                    <img src="img/vada_pav.png" class="w-12 h-12 rounded-xl object-cover shadow-sm border border-gray-100 flex-shrink-0" alt="Vada Pav Side" />
+                    <div class="flex flex-col">
+                        <span class="text-sm font-bold text-gray-800">Vada Pav Side</span>
+                        <span class="text-xs font-bold text-primary">₹30.00</span>
+                    </div>
+                </div>
+                <button onclick="addCrossSell('Vada Pav Side', 30, 'img/vada_pav.png', this)"
+                    class="bg-primary/10 text-primary w-8 h-8 rounded-lg flex items-center justify-center hover:bg-primary/20 transition-colors flex-shrink-0">
                     <span class="material-symbols-outlined text-sm">add</span>
                 </button>
             </div>
         </div>
 
         <button onclick="window.location.href='cart.html'"
-            class="w-full bg-[#1c1b1b] text-white py-3 rounded-xl font-bold hover:bg-black transition-colors flex items-center justify-center gap-2">
+            class="w-full bg-[#1c1b1b] text-white py-3.5 rounded-xl font-bold hover:bg-black transition-all shadow-md flex items-center justify-center gap-2">
             Continue to Checkout
             <span class="material-symbols-outlined text-sm">arrow_forward</span>
         </button>
         <button onclick="closeCrossSell()"
-            class="text-xs text-red-500 hover:text-green-900 font-medium w-full text-center py-1">Continue
-            Shopping</button>
+            class="text-xs text-gray-500 hover:text-gray-800 font-medium w-full text-center py-1">Continue Shopping</button>
     </div>
 
     <!-- AI Helper Modal -->
@@ -656,22 +729,16 @@
             popup.classList.remove('translate-y-0', 'opacity-100');
         }
 
-        function addCrossSell(name, price, btn) {
-            let img = '';
-            if (name.includes('Raita')) {
-                img = 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=150';
-            } else if (name.includes('Coke')) {
-                img = 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=150';
-            }
+        function addCrossSell(name, price, img, btn) {
             addToCart({
-                id: name.toLowerCase().replace(' ', '-'),
+                id: name.toLowerCase().replace(/[^a-z0-9]/g, '-'),
                 name: name,
                 price: price,
                 quantity: 1,
                 type: 'delivery',
-                image: img
+                image: img || 'img/addon_raita.png'
             });
-            btn.innerHTML = '<span class="material-symbols-outlined text-sm text-green-600">check</span>';
+            btn.innerHTML = '<span class="material-symbols-outlined text-sm text-green-600 font-bold">check</span>';
             btn.classList.replace('bg-primary/10', 'bg-green-100');
             btn.classList.replace('text-primary', 'text-green-600');
             btn.disabled = true;
@@ -1216,6 +1283,23 @@
                 speakText(response);
             });
         }
+
+        // Hungry Mart Tagline Text Ticker (Cycles between "Hungry Mart" and "India's Fastest Mart")
+        document.addEventListener('DOMContentLoaded', () => {
+            const tickerTexts = ["Hungry Mart", "India's Fastest Mart"];
+            let tickerIdx = 0;
+            setInterval(() => {
+                const labels = document.querySelectorAll('.mart-ticker-label');
+                tickerIdx = (tickerIdx + 1) % tickerTexts.length;
+                labels.forEach(label => {
+                    label.classList.add('opacity-0', '-translate-y-1');
+                    setTimeout(() => {
+                        label.innerText = tickerTexts[tickerIdx];
+                        label.classList.remove('opacity-0', '-translate-y-1');
+                    }, 300);
+                });
+            }, 2800);
+        });
     </script>
 </body>
 

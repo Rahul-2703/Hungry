@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hungry Mart - 10 Min Grocery & Cooking Essentials Delivery</title>
+    <link rel="icon" type="image/png" href="img/Eat-removebg-preview.png?v=2">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600;1,700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FFD700',
+                        secondary: '#E52B20',
+                        dark: '#1c1b1b',
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        display: ['"Playfair Display"', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes martGlowFilter {
+            0%, 100% {
+                filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.8)) drop-shadow(0 0 16px rgba(255, 215, 0, 0.9));
+                transform: scale(1);
+            }
+            50% {
+                filter: drop-shadow(0 0 18px rgba(239, 68, 68, 1)) drop-shadow(0 0 28px rgba(255, 215, 0, 1));
+                transform: scale(1.05);
+            }
+        }
+
+        .mart-glow-plain {
+            animation: martGlowFilter 2.2s ease-in-out infinite;
+        }
+
+        .glass-header {
+            background: rgba(255, 215, 0, 0.95);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+
+<body class="bg-[#FAF8F5] text-dark font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Top Navigation Bar -->
+    <nav class="glass-header text-dark flex justify-between items-center h-20 px-4 md:px-8 w-full z-50 fixed top-0 shadow-md">
+        <div class="flex items-center gap-3">
+            <button onclick="toggleSidebar()" class="p-2 hover:bg-dark/10 rounded-full transition-all flex items-center justify-center">
+                <span class="material-symbols-outlined text-3xl">menu</span>
+            </button>
+            <a href="index.html" class="p-2 hover:bg-dark/10 rounded-full transition-all flex items-center justify-center" title="Back to Home">
+                <span class="material-symbols-outlined text-3xl">arrow_back</span>
+            </a>
+
+            <!-- Hungry Mart Logo & Dynamic Ticker -->
+            <a href="mart.html" class="flex items-center gap-3 group">
+                <img src="img/HUNGRY MART.png" alt="HUNGRY MART" class="h-14 sm:h-16 w-auto object-contain mart-glow-plain transition-transform group-hover:scale-105" />
+                <div class="flex items-center">
+                    <span class="inline-flex items-center justify-center gap-2 w-[180px] sm:w-[210px] h-10 px-4 bg-secondary text-white font-extrabold text-xs sm:text-sm rounded-full shadow-lg border border-red-400 uppercase tracking-wider overflow-hidden select-none">
+                        <span class="material-symbols-outlined text-sm sm:text-base text-yellow-300 animate-bounce flex-shrink-0">bolt</span>
+                        <span class="mart-ticker-label transition-all duration-300 inline-block text-center whitespace-nowrap">Hungry Mart</span>
+                    </span>
+                </div>
+            </a>
+        </div>
+
+        <div class="hidden md:flex items-center gap-6 font-bold text-sm">
+            <a href="index.html" class="hover:text-secondary transition-colors">Home</a>
+            <a href="index.html#explore-recipes-section" class="hover:text-secondary transition-colors">Recipes & Menu</a>
+            <a href="mart.html" class="hover:text-secondary transition-colors text-secondary font-bold">Hungry Mart (Grocery)</a>
+            <a href="nearby.html" class="hover:text-secondary transition-colors">Order Nearby</a>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <a href="cart.html" class="p-2 hover:bg-dark/10 rounded-full transition-all relative inline-block">
+                <span class="material-symbols-outlined text-dark text-3xl">shopping_cart</span>
+                <span id="cart-badge-count" class="absolute -top-1 -right-1 bg-secondary text-white text-xs font-black rounded-full h-5 w-5 flex items-center justify-center shadow-md">0</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Sidebar Overlay -->
+    <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 z-50 hidden backdrop-blur-sm transition-opacity duration-300"></div>
+
+    <!-- Sidebar Drawer -->
+    <div id="sidebar" class="fixed top-0 left-0 w-80 h-full bg-white z-50 shadow-2xl -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+        <div class="p-6 bg-primary flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-3">
+                <img src="img/HUNGRY MART.png" class="h-10 w-auto" alt="Hungry Mart">
+                <span class="font-black text-xl text-dark">HUNGRY MART</span>
+            </div>
+            <button onclick="toggleSidebar()" class="p-2 hover:bg-dark/10 rounded-full">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+        </div>
+        <div class="p-6 flex-1 overflow-y-auto space-y-4">
+            <a href="index.html" class="flex items-center gap-3 p-3 hover:bg-yellow-50 rounded-xl font-bold text-gray-800">
+                <span class="material-symbols-outlined text-secondary">home</span> Home
+            </a>
+            <a href="mart.html" class="flex items-center gap-3 p-3 bg-secondary text-white rounded-xl font-bold shadow-md">
+                <span class="material-symbols-outlined text-yellow-300">storefront</span> Hungry Mart (10-Min Delivery)
+            </a>
+            <a href="nearby.html" class="flex items-center gap-3 p-3 hover:bg-yellow-50 rounded-xl font-bold text-gray-800">
+                <span class="material-symbols-outlined text-secondary">near_me</span> Nearby Restaurants
+            </a>
+            <a href="cart.html" class="flex items-center gap-3 p-3 hover:bg-yellow-50 rounded-xl font-bold text-gray-800">
+                <span class="material-symbols-outlined text-secondary">shopping_bag</span> My Cart
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 px-4 md:px-8 max-w-7xl mx-auto w-full pt-24 pb-24">
+
+        <!-- Banner Section -->
+        <div class="relative bg-gradient-to-r from-red-600 via-red-500 to-amber-500 rounded-3xl p-6 sm:p-10 text-white shadow-2xl overflow-hidden mb-10">
+            <div class="absolute -right-10 -bottom-10 opacity-20 pointer-events-none">
+                <span class="material-symbols-outlined text-[240px]">shopping_cart</span>
+            </div>
+
+            <div class="relative z-10 max-w-2xl">
+                <div class="inline-flex items-center gap-2 px-3 py-1 bg-yellow-400 text-dark font-black text-xs uppercase tracking-wider rounded-full shadow-md mb-4">
+                    <span class="material-symbols-outlined text-sm animate-bounce">bolt</span>
+                    10-Minute Express Grocery Delivery
+                </div>
+                <h1 class="text-3xl sm:text-5xl font-black leading-tight mb-4">
+                    Cooking Essentials & Fresh Groceries Delivered In Mins!
+                </h1>
+                <p class="text-yellow-100 font-medium text-sm sm:text-base mb-6">
+                    Fresh Vegetables, Pure Spices, Dairy, Rice, Atta & Cooking Ingredients right to your doorstep.
+                </p>
+
+                <!-- Search Input -->
+                <div class="flex items-center bg-white rounded-full p-2 shadow-xl border border-yellow-200">
+                    <span class="material-symbols-outlined text-gray-400 ml-3">search</span>
+                    <input id="mart-search" onkeyup="filterMartItems()" type="text" placeholder="Search groceries, masala, milk, oil, vegetables..." class="w-full bg-transparent px-3 py-2 outline-none text-dark font-medium text-sm sm:text-base placeholder:text-gray-400">
+                    <button onclick="filterMartItems()" class="bg-secondary hover:bg-red-700 text-white font-bold px-6 py-2.5 rounded-full transition-all flex items-center gap-1 text-sm shadow-md">
+                        Search
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Pills -->
+        <div class="flex items-center gap-3 overflow-x-auto pb-4 mb-8 no-scrollbar">
+            <button onclick="setCategory('all')" class="cat-btn active flex-shrink-0 px-5 py-2.5 rounded-full font-bold text-sm transition-all bg-secondary text-white shadow-md">
+                🛒 All Essentials
+            </button>
+            <button onclick="setCategory('spices')" class="cat-btn flex-shrink-0 px-5 py-2.5 rounded-full font-bold text-sm transition-all bg-white text-gray-700 border border-gray-200 hover:border-secondary shadow-sm">
+                🌶️ Spices & Masalas
+            </button>
+            <button onclick="setCategory('dairy')" class="cat-btn flex-shrink-0 px-5 py-2.5 rounded-full font-bold text-sm transition-all bg-white text-gray-700 border border-gray-200 hover:border-secondary shadow-sm">
+                🥛 Dairy & Khoya
+            </button>
+            <button onclick="setCategory('grains')" class="cat-btn flex-shrink-0 px-5 py-2.5 rounded-full font-bold text-sm transition-all bg-white text-gray-700 border border-gray-200 hover:border-secondary shadow-sm">
+                🌾 Flours & Grains
+            </button>
+            <button onclick="setCategory('veg')" class="cat-btn flex-shrink-0 px-5 py-2.5 rounded-full font-bold text-sm transition-all bg-white text-gray-700 border border-gray-200 hover:border-secondary shadow-sm">
+                🫑 Fresh Vegetables
+            </button>
+            <button onclick="setCategory('meat')" class="cat-btn flex-shrink-0 px-5 py-2.5 rounded-full font-bold text-sm transition-all bg-white text-gray-700 border border-gray-200 hover:border-secondary shadow-sm">
+                🥩 Fresh Meat & Bones
+            </button>
+            <button onclick="setCategory('addons')" class="cat-btn flex-shrink-0 px-5 py-2.5 rounded-full font-bold text-sm transition-all bg-white text-gray-700 border border-gray-200 hover:border-secondary shadow-sm">
+                🥤 Beverages & Sides
+            </button>
+        </div>
+
+        <!-- Products Grid -->
+        <div id="mart-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+            <!-- Items rendered dynamically via JS -->
+        </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-secondary text-white px-5 py-3 rounded-2xl shadow-2xl font-bold flex items-center gap-3 translate-y-24 opacity-0 transition-all duration-300 z-50">
+        <span class="material-symbols-outlined text-yellow-300">check_circle</span>
+        <span id="toast-msg">Item added to grocery cart!</span>
+    </div>
+
+    <script>
+        const groceryItems = [
+            { id: 'g1', name: 'Pure Gram Masala (100g)', category: 'spices', price: 45, origPrice: 60, unit: '1 Pack (100g)', img: 'img/gram masala.jpg', rating: 4.8 },
+            { id: 'g2', name: 'Premium Maida Flour (1 kg)', category: 'grains', price: 55, origPrice: 70, unit: '1 kg Bag', img: 'img/maida.jpg', rating: 4.9 },
+            { id: 'g3', name: 'Fresh Milk Khoya (250g)', category: 'dairy', price: 120, origPrice: 150, unit: '250g Pack', img: 'img/milk khoya.jpg', rating: 4.9 },
+            { id: 'g4', name: 'Fresh Mutton Bone (500g)', category: 'meat', price: 240, origPrice: 300, unit: '500g Pack', img: 'img/muttobn bone.jpg', rating: 4.7 },
+            { id: 'g5', name: 'Fresh Cut Mutton Meat (500g)', category: 'meat', price: 420, origPrice: 490, unit: '500g Clean Cut', img: 'img/mutton.jpg', rating: 4.9 },
+            { id: 'g6', name: 'Organic Green Capsicum (500g)', category: 'veg', price: 40, origPrice: 55, unit: '500g Fresh', img: 'img/capcicum.jpg', rating: 4.6 },
+            { id: 'g7', name: 'Chana Masala Special Blend', category: 'spices', price: 48, origPrice: 65, unit: '100g Box', img: 'img/chola masala.jpg', rating: 4.8 },
+            { id: 'g8', name: 'Chilled Coca-Cola Can (250ml)', category: 'addons', price: 40, origPrice: 45, unit: '250ml Can', img: 'img/addon_coke.png', rating: 4.9 },
+            { id: 'g9', name: 'Extra Mint Raita Bowl', category: 'addons', price: 20, origPrice: 30, unit: '1 Bowl (150g)', img: 'img/addon_raita.png', rating: 4.7 },
+            { id: 'g10', name: 'Butter Garlic Naan (2 pcs)', category: 'grains', price: 35, origPrice: 50, unit: '2 Fresh Naan', img: 'img/addon_naan.png', rating: 4.8 },
+            { id: 'g11', name: 'Sweet Gulab Jamun (2 pcs)', category: 'dairy', price: 50, origPrice: 65, unit: '2 Hot Jamuns', img: 'img/gulab_jamun.png', rating: 4.9 },
+            { id: 'g12', name: 'Mumbai Vada Pav Side', category: 'addons', price: 30, origPrice: 40, unit: '1 Pc Fresh', img: 'img/vada_pav.png', rating: 4.8 }
+        ];
+
+        let currentCat = 'all';
+
+        function renderMartGrid() {
+            const grid = document.getElementById('mart-grid');
+            const searchVal = (document.getElementById('mart-search')?.value || '').toLowerCase();
+            
+            const filtered = groceryItems.filter(item => {
+                const matchCat = currentCat === 'all' || item.category === currentCat;
+                const matchSearch = item.name.toLowerCase().includes(searchVal);
+                return matchCat && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center">
+                        <span class="material-symbols-outlined text-6xl text-gray-300 mb-3">search_off</span>
+                        <h3 class="text-lg font-bold text-gray-600">No grocery items found</h3>
+                        <p class="text-sm text-gray-400">Try searching for masala, milk, rice or mutton</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(item => `
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+                    <div>
+                        <div class="relative w-full aspect-square rounded-xl overflow-hidden mb-3 bg-gray-50">
+                            <img src="${item.img}" alt="${item.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                            <span class="absolute top-2 left-2 bg-yellow-400 text-dark text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">⚡ 10 MINS</span>
+                        </div>
+                        <div class="flex items-center gap-1 text-xs text-amber-500 font-bold mb-1">
+                            <span class="material-symbols-outlined text-sm fill-current">star</span>
+                            <span>${item.rating}</span>
+                        </div>
+                        <h3 class="font-bold text-dark text-sm sm:text-base leading-snug mb-1 line-clamp-2">${item.name}</h3>
+                        <p class="text-xs text-gray-500 font-medium mb-3">${item.unit}</p>
+                    </div>
+                    <div class="flex items-center justify-between pt-2 border-t border-gray-100 mt-2">
+                        <div>
+                            <span class="text-lg font-black text-dark">₹${item.price}</span>
+                            <span class="text-xs text-gray-400 line-through ml-1">₹${item.origPrice}</span>
+                        </div>
+                        <button onclick="addToCartGrocery('${item.name}', ${item.price}, '${item.img}')" class="bg-secondary hover:bg-red-700 text-white font-bold h-9 w-9 rounded-full flex items-center justify-center shadow-md hover:scale-110 active:scale-95 transition-all">
+                            <span class="material-symbols-outlined text-xl">add</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function setCategory(cat) {
+            currentCat = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.className = 'cat-btn flex-shrink-0 px-5 py-2.5 rounded-full font-bold text-sm transition-all bg-white text-gray-700 border border-gray-200 hover:border-secondary shadow-sm';
+            });
+            event.target.className = 'cat-btn active flex-shrink-0 px-5 py-2.5 rounded-full font-bold text-sm transition-all bg-secondary text-white shadow-md';
+            renderMartGrid();
+        }
+
+        function filterMartItems() {
+            renderMartGrid();
+        }
+
+        function addToCartGrocery(name, price, img) {
+            let cart = [];
+            try { cart = JSON.parse(localStorage.getItem('cart')) || []; } catch(e) { cart = []; }
+            
+            const existing = cart.find(i => i.name === name);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({ name: name, price: price, quantity: 1, img: img });
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartBadge();
+
+            // Show Toast
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = `${name} added to cart!`;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 2500);
+        }
+
+        function updateCartBadge() {
+            try {
+                const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                const totalCount = cart.reduce((sum, i) => sum + i.quantity, 0);
+                const badge = document.getElementById('cart-badge-count');
+                if (badge) badge.innerText = totalCount;
+            } catch(e){}
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        // Ticker loop
+        document.addEventListener('DOMContentLoaded', () => {
+            renderMartGrid();
+            updateCartBadge();
+
+            const tickerTexts = ["Hungry Mart", "India's Fastest Mart"];
+            let tickerIdx = 0;
+            setInterval(() => {
+                const labels = document.querySelectorAll('.mart-ticker-label');
+                tickerIdx = (tickerIdx + 1) % tickerTexts.length;
+                labels.forEach(label => {
+                    label.style.opacity = '0';
+                    label.style.transform = 'translateY(-6px)';
+                    setTimeout(() => {
+                        label.innerText = tickerTexts[tickerIdx];
+                        label.style.opacity = '1';
+                        label.style.transform = 'translateY(0)';
+                    }, 300);
+                });
+            }, 2800);
+        });
+    </script>
+</body>
+</html>

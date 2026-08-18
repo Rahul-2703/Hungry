@@ -5,9 +5,10 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Hungry</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="img/Eat-removebg-preview.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="img/Eat-removebg-preview.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="img/Eat-removebg-preview.png">
+    <link rel="icon" type="image/png" sizes="any" href="img/Eat-removebg-preview.png?v=2">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/Eat-removebg-preview.png?v=2">
+    <link rel="icon" type="image/png" sizes="192x192" href="img/Eat-removebg-preview.png?v=2">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/Eat-removebg-preview.png?v=2">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,800&family=Work+Sans:wght@400;600&family=JetBrains+Mono:wght@500&display=swap"
@@ -170,11 +171,26 @@
         }
 
         .dish-roll-out {
-            animation: dishRollOut 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            animation: dishRollOut 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
 
         .dish-roll-in {
-            animation: dishRollIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            animation: dishRollIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes martGlowFilter {
+            0%, 100% {
+                filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.8)) drop-shadow(0 0 14px rgba(255, 215, 0, 0.9));
+                transform: scale(1);
+            }
+            50% {
+                filter: drop-shadow(0 0 16px rgba(239, 68, 68, 1)) drop-shadow(0 0 25px rgba(255, 215, 0, 1));
+                transform: scale(1.06);
+            }
+        }
+
+        .mart-glow-plain {
+            animation: martGlowFilter 2.2s ease-in-out infinite;
         }
     </style>
 </head>
@@ -191,18 +207,30 @@
     <!-- TopNavBar -->
     <nav id="top-nav"
         class="bg-transparent text-[#1c1b1b] flex justify-between items-center h-20 px-8 w-full z-50 fixed top-0 transition-all duration-300">
-        <div class="flex items-center">
+        <div class="flex items-center gap-2 sm:gap-3">
             <button onclick="toggleSidebar()"
                 class="p-2 hover:bg-[#1c1b1b]/10 rounded-full transition-all flex items-center justify-center">
                 <span class="material-symbols-outlined text-3xl">menu</span>
             </button>
+
+            <!-- Hungry Mart Badge (Desktop only in header, hidden on mobile/tablet to prevent text overlap) -->
+            <a href="mart.html" class="hidden lg:flex items-center gap-3 relative group">
+                <img src="img/HUNGRY MART.png" alt="HUNGRY MART" class="h-12 sm:h-14 w-auto object-contain mart-glow-plain transition-transform group-hover:scale-105" />
+                
+                <div class="flex items-center">
+                    <span class="inline-flex items-center justify-center gap-2 w-[180px] sm:w-[210px] h-10 px-4 bg-red-600 text-white font-extrabold text-xs sm:text-sm rounded-full shadow-lg border border-red-400 uppercase tracking-wider overflow-hidden select-none">
+                        <span class="material-symbols-outlined text-sm sm:text-base text-yellow-300 animate-bounce flex-shrink-0">bolt</span>
+                        <span class="mart-ticker-label transition-all duration-300 inline-block text-center whitespace-nowrap">Hungry Mart</span>
+                    </span>
+                </div>
+            </a>
         </div>
 
         <!-- Logo Wrapper (Centered static in header, fades in on scroll for desktop, always visible for mobile) -->
         <a id="logo-wrapper" href="index.html?loader=true"
             class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex-shrink-0 flex items-center transition-all duration-300 opacity-100 md:opacity-0 pointer-events-auto md:pointer-events-none">
-            <img id="header-logo" src="img/Eat-removebg-preview.png" alt="HUNGRY"
-                class="h-14 md:h-28 drop-shadow-md cursor-pointer hover:scale-105 transition-all duration-300">
+            <img id="header-logo" src="img/Eat-removebg-preview.png?v=2" alt="HUNGRY"
+                class="h-10 sm:h-12 md:h-24 max-w-[130px] sm:max-w-none drop-shadow-md cursor-pointer hover:scale-105 transition-all duration-300">
         </a>
 
         <!-- Center Links (Centered in header at top, fades out on scroll so center logo shines) -->
@@ -336,11 +364,25 @@
                     </a>
                 </div>
 
-                <!-- Floating badge/pre-title -->
-                <div
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-secondary rounded-full font-bold text-xs uppercase tracking-wider mb-6 border border-red-100 shadow-sm animate-pulse">
-                    <span class="material-symbols-outlined text-sm">local_fire_department</span>
-                    Delicious & Fresh
+                <!-- Hungry Mart Hero Section Badge (Mobile & Tablet only, hidden on Desktop) -->
+                <div class="flex lg:hidden flex-wrap items-center justify-center md:justify-start gap-4 mb-6 z-20">
+                    <a href="mart.html" class="flex items-center gap-3 group">
+                        <img src="img/HUNGRY MART.png" alt="HUNGRY MART" class="h-14 sm:h-16 md:h-20 w-auto object-contain mart-glow-plain transition-transform group-hover:scale-105" />
+                        
+                        <div class="flex items-center">
+                            <span class="inline-flex items-center justify-center gap-2 w-[180px] sm:w-[210px] h-10 sm:h-11 px-4 bg-red-600 text-white font-extrabold text-xs sm:text-sm md:text-base rounded-full shadow-lg border border-red-400 uppercase tracking-wider overflow-hidden select-none">
+                                <span class="material-symbols-outlined text-sm sm:text-base text-yellow-300 animate-bounce flex-shrink-0">bolt</span>
+                                <span class="mart-ticker-label transition-all duration-300 inline-block text-center whitespace-nowrap">Hungry Mart</span>
+                            </span>
+                        </div>
+                    </a>
+
+                    <!-- Floating badge/pre-title -->
+                    <div
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-secondary rounded-full font-bold text-xs uppercase tracking-wider border border-red-100 shadow-sm animate-pulse">
+                        <span class="material-symbols-outlined text-sm">local_fire_department</span>
+                        Delicious & Fresh
+                    </div>
                 </div>
 
                 <h1 class="font-display-lg text-display-lg text-on-background mb-4 leading-tight">
@@ -1095,8 +1137,25 @@
                     activeImg.className = "absolute w-[92%] h-[92%] aspect-square object-cover rounded-full select-none pointer-events-none drop-shadow-[0_15px_20px_rgba(0,0,0,0.6)] z-20";
                     nextImg.className = "absolute w-[92%] h-[92%] aspect-square object-cover rounded-full select-none pointer-events-none drop-shadow-[0_15px_20px_rgba(0,0,0,0.6)] z-20 opacity-0";
                     isTransitioning = false;
-                }, 400); // matches the 0.4s keyframe duration
-            }, 1400); // Swap dish every 1.4 seconds (1.0s display + 0.4s rolling transition)
+                }, 600); // matches the 0.6s keyframe duration
+            }, 2800); // Swap dish every 2.8 seconds (2.2s display + 0.6s smooth rolling transition)
+        });
+
+        // Hungry Mart Tagline Text Ticker (Cycles between "Hungry Mart" and "India's Fastest Mart")
+        document.addEventListener('DOMContentLoaded', () => {
+            const tickerTexts = ["Hungry Mart", "India's Fastest Mart"];
+            let tickerIdx = 0;
+            setInterval(() => {
+                const labels = document.querySelectorAll('.mart-ticker-label');
+                tickerIdx = (tickerIdx + 1) % tickerTexts.length;
+                labels.forEach(label => {
+                    label.classList.add('opacity-0', '-translate-y-1');
+                    setTimeout(() => {
+                        label.innerText = tickerTexts[tickerIdx];
+                        label.classList.remove('opacity-0', '-translate-y-1');
+                    }, 300);
+                });
+            }, 2800);
         });
     </script>
 </body>
