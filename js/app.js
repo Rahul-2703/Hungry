@@ -1,18 +1,39 @@
 // Cart logic
-let cart = JSON.parse(localStorage.getItem('hungry_cart')) || [];
+let cart = [];
+try {
+    cart = JSON.parse(localStorage.getItem('hungry_cart')) || [];
+} catch (e) {
+    cart = [];
+}
 
 function addToCart(item) {
-    cart.push(item);
+    if (!item.quantity) item.quantity = 1;
+    if (!item.type) item.type = 'grocery';
+    if (!item.image && item.img) item.image = item.img;
+    if (!item.price) item.price = 0;
+    item.price = Number(item.price);
+
+    try { cart = JSON.parse(localStorage.getItem('hungry_cart')) || []; } catch (e) { cart = []; }
+
+    const existingIndex = cart.findIndex(i => i.name.toLowerCase() === item.name.toLowerCase());
+    if (existingIndex > -1) {
+        cart[existingIndex].quantity += item.quantity;
+        if (!cart[existingIndex].image && item.image) cart[existingIndex].image = item.image;
+    } else {
+        cart.push(item);
+    }
     localStorage.setItem('hungry_cart', JSON.stringify(cart));
     updateCartBadge();
     showToast(`${item.name} added to cart!`);
 }
 
 function getCart() {
+    try { cart = JSON.parse(localStorage.getItem('hungry_cart')) || []; } catch (e) { cart = []; }
     return cart;
 }
 
 function removeFromCart(index) {
+    try { cart = JSON.parse(localStorage.getItem('hungry_cart')) || []; } catch (e) { cart = []; }
     cart.splice(index, 1);
     localStorage.setItem('hungry_cart', JSON.stringify(cart));
     updateCartBadge();
@@ -22,6 +43,7 @@ function removeFromCart(index) {
 }
 
 function updateCartQuantity(index, amount) {
+    try { cart = JSON.parse(localStorage.getItem('hungry_cart')) || []; } catch (e) { cart = []; }
     if (cart[index]) {
         cart[index].quantity += amount;
         if (cart[index].quantity <= 0) {
@@ -43,23 +65,29 @@ function clearCart() {
 }
 
 function updateCartBadge() {
-    const badges = document.querySelectorAll('.cart-badge');
-    badges.forEach(badge => {
-        badge.innerText = cart.length;
-        if(cart.length > 0) {
-            badge.classList.remove('hidden');
-        } else {
-            badge.classList.add('hidden');
-        }
-    });
+    try {
+        const stored = JSON.parse(localStorage.getItem('hungry_cart')) || [];
+        const count = stored.reduce((acc, item) => acc + (item.quantity || 1), 0);
+        const badges = document.querySelectorAll('.cart-badge, #cart-badge-count');
+        badges.forEach(badge => {
+            badge.innerText = count;
+            if (count > 0) {
+                badge.classList.remove('hidden');
+            } else {
+                if (badge.id !== 'cart-badge-count') badge.classList.add('hidden');
+            }
+        });
+    } catch (e) { }
 }
+
+document.addEventListener('DOMContentLoaded', updateCartBadge);
 
 function showToast(message) {
     const toast = document.createElement('div');
     toast.className = 'fixed top-24 right-4 bg-primary text-on-primary px-6 py-3 rounded-lg shadow-xl font-bold z-[100] transform transition-all translate-x-20 opacity-0';
     toast.innerText = message;
     document.body.appendChild(toast);
-    
+
     setTimeout(() => {
         toast.classList.remove('translate-x-20', 'opacity-0');
     }, 100);
@@ -649,7 +677,7 @@ const RECIPES = {
         ]
     }
 
-,
+    ,
     "salmon": {
         name: "Honey Glazed Atlantic Salmon",
         image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAIc-zk1PsKRM0LdpaX9AhjeJq0yjfZaOFA-xcxLme8e0LLj3nkIzhkPQ6NSzhHVgXwC4h9XYTGp79mrJfRuaeFnRqd00PmeMwESmcDafDEcLTVRnr4mZWg9Q0uNdNmpMOM055a7SPakGaNwLicahqb7UXvrNbKtt4wJ1ZLP7U2TN9FzjC0AVzimozeKZsqkRXwYhKncIaO6RuRkengMduufBe1v8g5sLuE1vXLiLePfSFY9QVly--k",
@@ -703,7 +731,8 @@ const RECIPES = {
         steps: [
             "Rinse and cook quinoa according to package instructions.", "Toss chickpeas with olive oil and spices, then roast until crispy.", "Slice the avocado and wash the fresh spinach.", "Arrange quinoa, chickpeas, spinach, and avocado in a bowl.", "Drizzle generously with tahini dressing before serving."
         ]
-    },};
+    },
+};
 
 const RECIPE_TRANSLATIONS = {
     'chicken-biryani': {
@@ -1043,7 +1072,7 @@ function generateAICookingTips(recipeId, callback) {
     // Simulate typing delay
     let currentTip = 0;
     const interval = setInterval(() => {
-        if(currentTip < tips.length) {
+        if (currentTip < tips.length) {
             callback(tips[currentTip]);
             currentTip++;
         } else {
@@ -1055,11 +1084,11 @@ function generateAICookingTips(recipeId, callback) {
 function chatWithAI(recipe, userMessage, callback) {
     let response = "";
     let lowerMsg = userMessage.toLowerCase();
-    
+
     // Retrieve cooking language from DOM
     const lang = document.getElementById('cook-lang-select') ? document.getElementById('cook-lang-select').value : 'English';
     const recipeId = recipe.id || Object.keys(RECIPES).find(key => RECIPES[key].name === recipe.name) || 'chicken-biryani';
-    
+
     const isHindi = lang === 'Hindi';
     const isTamil = lang === 'Tamil';
     const isTelugu = lang === 'Telugu';
@@ -1077,7 +1106,7 @@ function chatWithAI(recipe, userMessage, callback) {
         } else {
             response = `Here are the exact measurements for <b>${recipe.name}</b>:<br><ul class="list-disc pl-4 mt-2">`;
         }
-        
+
         recipe.ingredients.forEach(ing => {
             response += `<li><b>${ing.name}</b>: ${ing.baseQty} ${ing.unit}</li>`;
         });
@@ -1125,7 +1154,7 @@ function chatWithAI(recipe, userMessage, callback) {
             response = `That's a great question! For <b>${recipe.name}</b>, maintaining the right balance of spices is key. I'd recommend tasting as you go and adjusting salt and spice to your preference. Need the exact ingredient measurements or full cooking steps? Just ask!`;
         }
     }
-    
+
     // Simulate delay
     setTimeout(() => {
         callback(response);
@@ -1137,7 +1166,7 @@ function chatWithAI(recipe, userMessage, callback) {
 function toggleSidebar(forceClose = false) {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
-    
+
     if (sidebar && overlay) {
         if (!forceClose && sidebar.classList.contains('-translate-x-full')) {
             overlay.classList.remove('hidden');
@@ -1154,7 +1183,7 @@ function toggleSidebar(forceClose = false) {
 function openOffersModal() {
     const modal = document.getElementById('offers-modal');
     const content = document.getElementById('offers-modal-content');
-    if(modal) {
+    if (modal) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         setTimeout(() => {
@@ -1165,15 +1194,15 @@ function openOffersModal() {
 }
 
 function closeOffersModal(e, force = false) {
-    if(force || (e && e.target && e.target.id === 'offers-modal')) {
+    if (force || (e && e.target && e.target.id === 'offers-modal')) {
         const modal = document.getElementById('offers-modal');
         const content = document.getElementById('offers-modal-content');
-        if(content) {
+        if (content) {
             content.classList.remove('scale-100', 'opacity-100');
             content.classList.add('scale-95', 'opacity-0');
         }
         setTimeout(() => {
-            if(modal) {
+            if (modal) {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
             }
@@ -1183,16 +1212,16 @@ function closeOffersModal(e, force = false) {
 
 function openHistoryModal() {
     toggleSidebar(true);
-    
+
     const modal = document.getElementById('history-modal');
     const content = document.getElementById('history-modal-content');
     const list = document.getElementById('history-list');
-    
-    if(modal && list) {
+
+    if (modal && list) {
         const history = getOrderHistory();
         list.innerHTML = '';
-        
-        if(history.length === 0) {
+
+        if (history.length === 0) {
             list.innerHTML = '<p class="text-gray-500 text-center py-4">No past orders found.</p>';
         } else {
             // copy to avoid mutating original
@@ -1220,15 +1249,15 @@ function openHistoryModal() {
 }
 
 function closeHistoryModal(e, force = false) {
-    if(force || (e && e.target && e.target.id === 'history-modal')) {
+    if (force || (e && e.target && e.target.id === 'history-modal')) {
         const modal = document.getElementById('history-modal');
         const content = document.getElementById('history-modal-content');
-        if(content) {
+        if (content) {
             content.classList.remove('scale-100', 'opacity-100');
             content.classList.add('scale-95', 'opacity-0');
         }
         setTimeout(() => {
-            if(modal) {
+            if (modal) {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
             }
@@ -1249,3 +1278,916 @@ function saveOrder(cartList, totalAmount) {
 function getOrderHistory() {
     return JSON.parse(localStorage.getItem('hungry_orders')) || [];
 }
+
+// ==========================================
+//          HUNGRY.AI CHATBOT WIDGET
+// ==========================================
+
+(function () {
+    // 1. DYNAMIC CSS STYLES INJECTION
+    const styleEl = document.createElement('style');
+    styleEl.innerHTML = `
+        /* Floating Bot Container & Animations */
+        @keyframes hungry-bot-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-bot-jump {
+            animation: hungry-bot-bounce 3s infinite ease-in-out;
+        }
+        @keyframes label-pulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); }
+        }
+        .hungry-label-glow {
+            animation: label-pulse 2s infinite ease-in-out;
+        }
+        #hungry-ai-logo-label {
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        #hungry-ai-logo-label:hover {
+            background: #232222 !important;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+            transform: scale(1.05);
+        }
+        .chatbot-card {
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        /* Custom scrollbar for chat history */
+        .chat-scroll::-webkit-scrollbar {
+            width: 5px;
+        }
+        .chat-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .chat-scroll::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 99px;
+        }
+        /* Mic recording glow */
+        @keyframes mic-glow {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+            50% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        }
+        .mic-recording {
+            background: #ef4444 !important;
+            color: white !important;
+            animation: mic-glow 1.5s infinite ease-in-out;
+        }
+    `;
+    document.head.appendChild(styleEl);
+
+    // 2. CHAT LANGUAGE DATABASE
+    const CHAT_LANGS = {
+        English: {
+            welcome: "Hi Rahul 👋\nwelcome to Hungry\nim your Hungry.ai assistant\ntell me how can I help you",
+            howToUseTrigger: "how to use",
+            howToUseReply: "I will guide! Hungry is a cooking guidance and food/grocery ordering app.\n\nNow tell me, are you hungry Rahul?",
+            yes: "yes",
+            no: "no",
+            cookOrOrderQuestion: "Are you interested to cook or order?",
+            cookBtn: "Cook 🍳",
+            orderBtn: "Order 🛵",
+            cookResult: "Here is what you need! Choose from our top recipes to start cooking with step-by-step guidance:",
+            orderResult: "Here are your options! You can order delicious meals from cloud kitchens or fresh groceries from Hungry Mart:",
+            orderFoodBtn: "Order Food 🛵",
+            orderMartBtn: "Order Mart 🛒",
+            placeholder: "Ask hungry.ai anything...",
+            typing: "Hungry.ai is thinking...",
+            yesBtnText: "Yes 👍",
+            noBtnText: "No 👎"
+        },
+        Hindi: {
+            welcome: "नमस्ते राहुल 👋\nहंग्री में आपका स्वागत है!\nमैं आपका Hungry.ai सहायक हूँ।\nमुझे बताएं, मैं आपकी कैसे मदद कर सकता हूँ?",
+            howToUseTrigger: "कैसे उपयोग करें",
+            howToUseReply: "मैं आपका मार्गदर्शन करूँगा! हंग्री एक कुकिंग गाइडेंस और फूड/ग्रोसरी ऑर्डरिंग ऐप है।\n\nअब बताएं राहुल, क्या आपको भूख लगी है?",
+            yes: "हाँ",
+            no: "नहीं",
+            cookOrOrderQuestion: "क्या आप खाना पकाने में रुचि रखते हैं या ऑर्डर करने में?",
+            cookBtn: "पकाएं 🍳",
+            orderBtn: "ऑर्डर करें 🛵",
+            cookResult: "यहाँ आपको जो चाहिए वह है! खाना बनाना शुरू करने के लिए हमारे शीर्ष व्यंजनों में से चुनें:",
+            orderResult: "यहाँ आपके विकल्प हैं! आप क्लाउड किचन से स्वादिष्ट भोजन ऑर्डर कर सकते हैं या हंग्री मार्ट से ताज़ा ग्रोसरी:",
+            orderFoodBtn: "भोजन ऑर्डर करें 🛵",
+            orderMartBtn: "मार्ट ऑर्डर करें 🛒",
+            placeholder: "हंग्री.एआई से कुछ भी पूछें...",
+            typing: "हंग्री.एआई सोच रहा है...",
+            yesBtnText: "हाँ 👍",
+            noBtnText: "नहीं 👎"
+        },
+        Tamil: {
+            welcome: "வணக்கம் ராகுல் \nஹங்ரிக்கு வரவேற்கிறோம்!\nநான் உங்கள் Hungry.ai உதவியாளர்.\nசொல்லுங்கள், நான் உங்களுக்கு எவ்வாறு உதவ முடியும்?",
+            howToUseTrigger: "எப்படி பயன்படுத்துவது",
+            howToUseReply: "நான் உங்களுக்கு வழிகாட்டுகிறேன்! ஹங்ரி என்பது சமையல் வழிகாட்டுதல் மற்றும் உணவு, மளிகை ஆர்டர் செய்யும் செயலி ஆகும்.\n\nஇப்போது சொல்லுங்கள் ராகுல், உங்களுக்கு பசிக்கிறதா?",
+            yes: "ஆம்",
+            no: "இல்லை",
+            cookOrOrderQuestion: "உங்களுக்கு சமைக்க விருப்பமா அல்லது ஆர்டர் செய்ய விருப்பமா?",
+            cookBtn: "சமைக்க 🍳",
+            orderBtn: "ஆர்டர் செய்ய 🛵",
+            cookResult: "சமைக்க சிறந்த சமையல் குறிப்புகளிலிருந்து தேர்ந்தெடுக்கவும்:",
+            orderResult: "சுவையான உணவு அல்லது புதிய மளிகைப் பொருட்களை ஆர்டர் செய்யலாம்:",
+            orderFoodBtn: "உணவு ஆர்டர் 🛵",
+            orderMartBtn: "மளிகை ஆர்டர் 🛒",
+            placeholder: "ஏதேனும் கேளுங்கள்...",
+            typing: "ஹங்ரி.ஏஐ யோசிக்கிறது...",
+            yesBtnText: "ஆம் 👍",
+            noBtnText: "இல்லை 👎"
+        },
+        Telugu: {
+            welcome: "నమస్తే రాహుల్ 👋\nహంగ్రీకి స్వాగతం!\nనేను మీ Hungry.ai సహాయకుడిని.\nచెప్పండి, నేను మీకు ఎలా సహాయం చేయగలను?",
+            howToUseTrigger: "ఎలా ఉపయోగించాలి",
+            howToUseReply: "నేను మీకు మార్గనిర్దేశం చేస్తాను! హంగ్రీ అనేది వంట మార్గదర్శకత్వం మరియు ఆహారం, కిరాణా ఆర్డర్ చేసే యాప్.\n\nఇప్పుడు చెప్పండి రాహుల్, మీకు ఆకలిగా ఉందా?",
+            yes: "అవును",
+            no: "కాదు",
+            cookOrOrderQuestion: "మీరు వండడానికి ఆసక్తి చూపుతున్నారా లేదా ఆర్డర్ చేయడానికా?",
+            cookBtn: "వండడానికి 🍳",
+            orderBtn: "ఆర్డర్ చేయడానికి 🛵",
+            cookResult: "వంట ప్రారంభించడానికి మా అగ్ర వంటకాల నుండి ఎంచుకోండి:",
+            orderResult: "క్లౌడ్ కిచెన్ నుండి ఆహారాన్ని లేదా హంగ్రీ మార్ట్ నుండి తాజా కిరాణాను ఆర్డర్ చేయవచ్చు:",
+            orderFoodBtn: "ఆహారం ఆర్డర్ 🛵",
+            orderMartBtn: "మార్ట్ ఆర్డర్ 🛒",
+            placeholder: "ఏదైనా అడగండి...",
+            typing: "హంగ్రీ.AI ఆలోచిస్తోంది...",
+            yesBtnText: "అవును 👍",
+            noBtnText: "కాదు 👎"
+        },
+        Malayalam: {
+            welcome: "ഹലോ രാഹുൽ 👋\nഹംഗ്രിയിലേക്ക് സ്വാഗതം!\nഞാൻ നിങ്ങളുടെ Hungry.ai സഹായിയാണ്.\nപറയൂ, ഞാൻ എങ്ങനെയാണ് നിങ്ങളെ സഹായിക്കേണ്ടത്?",
+            howToUseTrigger: "എങ്ങനെ ഉപയോഗിക്കാം",
+            howToUseReply: "ഞാൻ നിങ്ങളെ നയിക്കാം! പാചക മാർഗ്ഗനിർദ്ദേശവും ഭക്ഷണവും പലചരക്ക് സാധനങ്ങളും ഓർഡർ ചെയ്യുന്നതിനുള്ള ഒരു ആപ്പാണ് ഹംഗ്രി.\n\nഇപ്പോൾ പറയൂ രാഹുൽ, നിങ്ങൾക്ക് വിശക്കുന്നുണ്ടോ?",
+            yes: "അതെ",
+            no: "അല്ല",
+            cookOrOrderQuestion: "നിങ്ങൾക്ക് പാചകം ചെയ്യാനാണോ അതോ ഓർഡർ ചെയ്യാനാണോ താല്പര്യം?",
+            cookBtn: "പാചകം ചെയ്യാം 🍳",
+            orderBtn: "ഓർഡർ ചെയ്യാം 🛵",
+            cookResult: "പാചകം ആരംഭിക്കാൻ ഞങ്ങളുടെ പ്രധാന പാചകക്കുറിപ്പുകളിൽ നിന്ന് തിരഞ്ഞെടുക്കുക:",
+            orderResult: "ഭക്ഷണം ഓർഡർ ചെയ്യാം അല്ലെങ്കിൽ ഹംഗ്രി മാർട്ടിൽ നിന്ന് പലചരക്ക് സാധനങ്ങൾ വാങ്ങാം:",
+            orderFoodBtn: "ഭക്ഷണം ഓർഡർ 🛵",
+            orderMartBtn: "മാർട്ട് ഓർഡർ 🛒",
+            placeholder: "എന്തെങ്കിലും ചോദിക്കൂ...",
+            typing: "ഹംഗ്രി.എഐ ചിന്തിക്കുന്നു...",
+            yesBtnText: "അതെ 👍",
+            noBtnText: "അല്ല 👎"
+        }
+    };
+
+    // Chatbot Global Variables
+    let currentBotLang = localStorage.getItem('hungry_cook_lang') || 'English';
+    let chatState = 'welcome'; // welcome, waiting_is_hungry, waiting_cook_or_order, general
+    let isSpeakerOn = true;
+    let currentActiveAudio = null;
+    let chatRecognition = null;
+
+    // Initialize Web Speech Recognition
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        chatRecognition = new SpeechRec();
+        chatRecognition.continuous = false;
+        chatRecognition.interimResults = false;
+    }
+
+    // Dynamic translation helpers
+    async function translateText(text, targetLangCode) {
+        if (targetLangCode === 'en') return text;
+        try {
+            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLangCode}&dt=t&q=${encodeURIComponent(text)}`;
+            const res = await fetch(url);
+            const json = await res.json();
+            return json[0].map(item => item[0]).join('');
+        } catch (e) {
+            console.error("Translation failed: ", e);
+            return text;
+        }
+    }
+
+    async function translateUserText(text, sourceLangCode) {
+        if (sourceLangCode === 'en') return text;
+        try {
+            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sourceLangCode}&tl=en&dt=t&q=${encodeURIComponent(text)}`;
+            const res = await fetch(url);
+            const json = await res.json();
+            return json[0].map(item => item[0]).join('');
+        } catch (e) {
+            console.error("Reverse translation failed: ", e);
+            return text;
+        }
+    }
+
+    // Google Cloud Open TTS Streaming
+    function playChatBotTTS(text, langCode, langName) {
+        if (!isSpeakerOn) return;
+
+        // Cancel existing Web Speech or Audio
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+        if (currentActiveAudio) {
+            currentActiveAudio.pause();
+            currentActiveAudio = null;
+        }
+
+        const cleanText = text
+            .replace(/<[^>]+>/g, ' ')
+            .replace(/\*\*/g, '')
+            .replace(/\*/g, '')
+            .replace(/•/g, '')
+            .replace(/&nbsp;/g, ' ')
+            .replace(/\s+/g, ' ')
+            .substring(0, 250)
+            .trim();
+        if (!cleanText) return;
+
+        const player = document.getElementById('hungry-chatbot-tts-player');
+        if (player) {
+            const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${langCode}&client=gtx&q=${encodeURIComponent(cleanText)}`;
+            player.src = ttsUrl;
+            player.volume = 1.0;
+            currentActiveAudio = player;
+            const playPromise = player.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log("Playing chatbot TTS for " + langName);
+                }).catch(err => {
+                    console.log("Chatbot player error, falling back to Web Speech Synthesis: ", err);
+                    fallbackWebSpeechChat(cleanText, langCode, langName);
+                });
+            }
+        } else {
+            fallbackWebSpeechChat(cleanText, langCode, langName);
+        }
+    }
+
+    function fallbackWebSpeechChat(text, langCode, langName) {
+        if (!window.speechSynthesis) return;
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        let voiceCode = 'en-IN';
+        if (langCode === 'hi') voiceCode = 'hi-IN';
+        else if (langCode === 'ta') voiceCode = 'ta-IN';
+        else if (langCode === 'te') voiceCode = 'te-IN';
+        else if (langCode === 'ml') voiceCode = 'ml-IN';
+
+        utterance.lang = voiceCode;
+        utterance.volume = 1.0;
+        utterance.rate = 0.85;
+
+        const voices = window.speechSynthesis.getVoices();
+        const matchedVoice = voices.find(v => {
+            const nameLower = v.name.toLowerCase();
+            const langLower = v.lang.toLowerCase();
+            return langLower === voiceCode.toLowerCase() ||
+                langLower.startsWith(langCode) ||
+                nameLower.includes(langName.toLowerCase());
+        });
+        if (matchedVoice) {
+            utterance.voice = matchedVoice;
+        }
+        window.speechSynthesis.speak(utterance);
+    }
+
+    // 3. INJECT CHATBOT DOM ELEMENTS
+    function injectChatbotDOM() {
+        if (document.getElementById('hungry-ai-widget')) return;
+
+        const container = document.createElement('div');
+        container.id = 'hungry-ai-widget';
+        container.className = 'fixed bottom-6 right-6 z-[1000] flex flex-col items-end transition-opacity duration-500';
+
+        // Floating Icon + Label peeking out
+        container.innerHTML = `
+            <!-- Floating welcome tooltip that slides in on load -->
+            <div id="chatbot-helper-tooltip" class="absolute bottom-20 right-0 mb-2 bg-[#FAF8F5] border border-gray-200 text-dark px-4 py-2.5 rounded-2xl shadow-xl text-xs font-bold whitespace-nowrap z-50 transition-all duration-500 opacity-0 translate-y-2 pointer-events-auto cursor-pointer flex items-center gap-1.5 hover:scale-105 active:scale-95">
+                <span class="w-2.5 h-2.5 bg-green-500 rounded-full animate-ping"></span>
+                <span>Hi Rahul! Need help? 💬</span>
+            </div>
+
+            <!-- Floating logo and widget button -->
+            <div class="relative flex items-center justify-end">
+                <div id="hungry-ai-logo-label" class="absolute right-10 bg-[#1c1b1b] text-[#FFD700] py-2.5 pl-6 pr-12 rounded-l-full font-black text-sm z-0 select-none border-y border-l border-white/10 tracking-widest hungry-label-glow cursor-pointer">
+                    HUNGRY.AI
+                </div>
+                <button id="hungry-chatbot-toggle-btn" class="relative w-16 h-16 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform duration-300 focus:outline-none flex items-center justify-center bg-[#FFD700] hover:bg-[#ffe033] z-10 border-2 border-white/20 animate-bot-jump">
+                    <img src="img/background-remover-cutout (7).png" alt="Hungry AI" class="w-12 h-12 object-contain" />
+                    <!-- Online indicator pulse -->
+                    <span class="absolute top-1 right-1 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white animate-pulse"></span>
+                </button>
+            </div>
+
+            <!-- Audio Player -->
+            <audio id="hungry-chatbot-tts-player" class="hidden" preload="auto"></audio>
+
+            <!-- Chatbot Window Card - Shrunk height to 450px to prevent header overriding -->
+            <div id="hungry-chatbot-window" class="absolute bottom-20 right-0 w-96 max-w-[calc(100vw-2rem)] h-[450px] rounded-3xl flex flex-col z-[1000] overflow-hidden chatbot-card transition-all duration-300 transform scale-95 opacity-0 pointer-events-none">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-[#FFD700] to-[#FFC800] p-4 flex justify-between items-center text-dark shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="relative w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-inner">
+                            <img src="img/background-remover-cutout (7).png" alt="Bot Logo" class="w-8 h-8 object-contain">
+                        </div>
+                        <div>
+                            <h4 class="font-extrabold text-sm tracking-wide">hungry.ai</h4>
+                            <div class="flex items-center gap-1.5 text-xs font-semibold text-gray-700">
+                                <span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
+                                <span>Assistant Online</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-2">
+                        <!-- Language Selector Dropdown -->
+                        <select id="chatbot-lang-select" class="bg-white text-black text-xs font-bold px-2 py-1 rounded-lg border border-dark/10 outline-none focus:ring-1 focus:ring-secondary cursor-pointer">
+                            <option class="text-black" value="English">EN</option>
+                            <option class="text-black" value="Hindi">HI</option>
+                            <option class="text-black" value="Tamil">TA</option>
+                            <option class="text-black" value="Telugu">TE</option>
+                            <option class="text-black" value="Malayalam">ML</option>
+                        </select>
+
+                        <!-- Speaker Toggle -->
+                        <button id="chatbot-speaker-btn" class="hover:bg-dark/10 p-1.5 rounded-full transition-colors flex items-center">
+                            <span class="material-symbols-outlined text-xl text-dark" id="chatbot-speaker-icon">volume_up</span>
+                        </button>
+                        
+                        <!-- Close Button -->
+                        <button id="chatbot-close-btn" class="hover:bg-dark/10 p-1.5 rounded-full transition-colors flex items-center">
+                            <span class="material-symbols-outlined text-xl text-dark">close</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chat Messages Body -->
+                <div id="hungry-chatbot-body" class="flex-grow p-4 overflow-y-auto flex flex-col gap-3 bg-[#FAF8F5] chat-scroll">
+                    <!-- Dynamic Bubbles Injected Here -->
+                </div>
+
+                <!-- Footer Input Area -->
+                <div class="p-3 bg-white border-t border-gray-100 flex items-center gap-2">
+                    <!-- Voice Microphone Button -->
+                    <button id="chatbot-mic-btn" class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all flex items-center justify-center focus:outline-none">
+                        <span class="material-symbols-outlined" id="chatbot-mic-icon">mic</span>
+                    </button>
+
+                    <!-- Text input -->
+                    <input type="text" id="hungry-chatbot-input" placeholder="Ask hungry.ai anything..." class="flex-grow bg-gray-50 border-none outline-none text-sm p-3 rounded-xl focus:bg-gray-100 transition-colors">
+                    
+                    <!-- Send Button -->
+                    <button id="hungry-chatbot-send-btn" class="w-10 h-10 rounded-xl bg-secondary text-white hover:bg-red-600 shadow-md flex items-center justify-center transition-all">
+                        <span class="material-symbols-outlined text-lg">send</span>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(container);
+
+        // Attach listeners
+        const toggleBtn = document.getElementById('hungry-chatbot-toggle-btn');
+        const logoLabel = document.getElementById('hungry-ai-logo-label');
+        const closeBtn = document.getElementById('chatbot-close-btn');
+        const win = document.getElementById('hungry-chatbot-window');
+        const langSelect = document.getElementById('chatbot-lang-select');
+        const speakerBtn = document.getElementById('chatbot-speaker-btn');
+        const sendBtn = document.getElementById('hungry-chatbot-send-btn');
+        const input = document.getElementById('hungry-chatbot-input');
+        const micBtn = document.getElementById('chatbot-mic-btn');
+        const tooltip = document.getElementById('chatbot-helper-tooltip');
+
+        // Toggle chat window open/close
+        const toggleWin = () => {
+            const isClosed = win.classList.contains('pointer-events-none');
+            if (isClosed) {
+                win.classList.remove('scale-95', 'opacity-0', 'pointer-events-none');
+                win.classList.add('scale-100', 'opacity-100', 'pointer-events-auto');
+                // Hide welcome tooltip
+                if (tooltip) {
+                    tooltip.classList.add('opacity-0', 'pointer-events-none');
+                }
+                // Play welcome message if body is empty
+                const chatBody = document.getElementById('hungry-chatbot-body');
+                if (chatBody.children.length === 0) {
+                    renderWelcomeMessage();
+                }
+            } else {
+                win.classList.add('scale-95', 'opacity-0', 'pointer-events-none');
+                win.classList.remove('scale-100', 'opacity-100', 'pointer-events-auto');
+                // Stop speaking when closed
+                if (window.speechSynthesis) window.speechSynthesis.cancel();
+                if (currentActiveAudio) currentActiveAudio.pause();
+            }
+        };
+
+        toggleBtn.addEventListener('click', toggleWin);
+        logoLabel.addEventListener('click', toggleWin);
+        closeBtn.addEventListener('click', toggleWin);
+        if (tooltip) {
+            tooltip.addEventListener('click', toggleWin);
+        }
+
+        // Show welcome tooltip for 2 seconds, then repeat every 20 seconds
+        function triggerTooltipCycle() {
+            if (!tooltip || !win.classList.contains('pointer-events-none')) return;
+            tooltip.classList.remove('opacity-0', 'pointer-events-none');
+            tooltip.classList.add('opacity-100', 'pointer-events-auto');
+
+            setTimeout(() => {
+                if (tooltip && win.classList.contains('pointer-events-none')) {
+                    tooltip.classList.add('opacity-0', 'pointer-events-none');
+                    tooltip.classList.remove('opacity-100', 'pointer-events-auto');
+                }
+            }, 2000); // visible for 2 seconds
+        }
+
+        // Check if page loader is active
+        const isLoaderPlaying = () => {
+            const l = document.getElementById('loader');
+            return l && !l.classList.contains('hidden') && l.style.display !== 'none' && l.style.opacity !== '0';
+        };
+
+        if (isLoaderPlaying()) {
+            container.classList.add('opacity-0', 'pointer-events-none');
+            const checkLoaderInterval = setInterval(() => {
+                if (!isLoaderPlaying()) {
+                    clearInterval(checkLoaderInterval);
+                    container.classList.remove('opacity-0', 'pointer-events-none');
+                    setTimeout(() => {
+                        triggerTooltipCycle();
+                        setInterval(triggerTooltipCycle, 22000);
+                    }, 2000);
+                }
+            }, 200);
+        } else {
+            setTimeout(() => {
+                triggerTooltipCycle();
+                setInterval(triggerTooltipCycle, 22000);
+            }, 2000);
+        }
+
+        // Lang selection sync
+        langSelect.value = currentBotLang;
+        langSelect.addEventListener('change', (e) => {
+            currentBotLang = e.target.value;
+            localStorage.setItem('hungry_cook_lang', currentBotLang);
+
+            // Sync with recipe page selector if available
+            const recipeSelect = document.getElementById('cook-lang-select');
+            if (recipeSelect) recipeSelect.value = currentBotLang;
+
+            // Update footer placeholder
+            const info = CHAT_LANGS[currentBotLang] || CHAT_LANGS.English;
+            input.placeholder = info.placeholder;
+
+            // Reset conversation and welcome in new language
+            document.getElementById('hungry-chatbot-body').innerHTML = '';
+            chatState = 'welcome';
+            renderWelcomeMessage();
+        });
+
+        // Speaker toggle
+        speakerBtn.addEventListener('click', () => {
+            isSpeakerOn = !isSpeakerOn;
+            document.getElementById('chatbot-speaker-icon').innerText = isSpeakerOn ? 'volume_up' : 'volume_off';
+            if (!isSpeakerOn) {
+                if (window.speechSynthesis) window.speechSynthesis.cancel();
+                if (currentActiveAudio) currentActiveAudio.pause();
+            }
+        });
+
+        // Send triggers
+        sendBtn.addEventListener('click', handleChatbotSend);
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleChatbotSend();
+        });
+
+        // Mic recording logic
+        if (chatRecognition) {
+            chatRecognition.onstart = () => {
+                micBtn.classList.add('mic-recording');
+                document.getElementById('chatbot-mic-icon').innerText = 'graphic_eq';
+            };
+            chatRecognition.onend = () => {
+                micBtn.classList.remove('mic-recording');
+                document.getElementById('chatbot-mic-icon').innerText = 'mic';
+            };
+            chatRecognition.onresult = (e) => {
+                const transcript = e.results[0][0].transcript;
+                input.value = transcript;
+                handleChatbotSend();
+            };
+            chatRecognition.onerror = (err) => {
+                console.error("Speech Recognition error: ", err);
+                micBtn.classList.remove('mic-recording');
+                document.getElementById('chatbot-mic-icon').innerText = 'mic';
+            };
+
+            micBtn.addEventListener('click', () => {
+                const isRecording = micBtn.classList.contains('mic-recording');
+                if (isRecording) {
+                    chatRecognition.stop();
+                } else {
+                    let speechLang = 'en-IN';
+                    if (currentBotLang === 'Hindi') speechLang = 'hi-IN';
+                    else if (currentBotLang === 'Tamil') speechLang = 'ta-IN';
+                    else if (currentBotLang === 'Telugu') speechLang = 'te-IN';
+                    else if (currentBotLang === 'Malayalam') speechLang = 'ml-IN';
+                    chatRecognition.lang = speechLang;
+                    chatRecognition.start();
+                }
+            });
+        } else {
+            micBtn.style.display = 'none';
+        }
+
+        // Apply placeholder initially
+        const info = CHAT_LANGS[currentBotLang] || CHAT_LANGS.English;
+        input.placeholder = info.placeholder;
+
+        // 6. Hide chatbot widget when scrolling near footer to prevent hiding footer content
+        const handleWidgetScroll = () => {
+            const footer = document.querySelector('footer');
+            if (!footer) return;
+            const footerRect = footer.getBoundingClientRect();
+            const windowHeight = window.innerHeight;
+            if (footerRect.top < windowHeight - 10) {
+                container.style.opacity = '0';
+                container.style.pointerEvents = 'none';
+                container.style.transform = 'scale(0.8) translateY(20px)';
+                container.style.transition = 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)';
+            } else {
+                container.style.opacity = '1';
+                container.style.pointerEvents = 'auto';
+                container.style.transform = 'scale(1) translateY(0)';
+                container.style.transition = 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)';
+            }
+        };
+        window.addEventListener('scroll', handleWidgetScroll);
+        window.addEventListener('resize', handleWidgetScroll);
+        setTimeout(handleWidgetScroll, 100);
+    }
+
+    // 4. CHAT DIALOGUE FLOW CONTROLLER
+    function addChatBubble(text, isUser = false) {
+        const body = document.getElementById('hungry-chatbot-body');
+        const bubble = document.createElement('div');
+        bubble.className = isUser
+            ? "bg-secondary text-white px-4 py-3 rounded-2xl rounded-tr-none self-end max-w-[85%] shadow-sm font-semibold tracking-wide"
+            : "bg-white border border-gray-100 text-dark px-4 py-3 rounded-2xl rounded-tl-none self-start max-w-[85%] shadow-sm font-semibold leading-relaxed";
+
+        // Convert newlines to breaks
+        bubble.innerHTML = text.replace(/\n/g, '<br>');
+        body.appendChild(bubble);
+        body.scrollTop = body.scrollHeight;
+    }
+
+    function addOptionsBubble(options) {
+        const body = document.getElementById('hungry-chatbot-body');
+        const wrapper = document.createElement('div');
+        wrapper.className = "flex flex-col gap-2 self-start mt-1 w-full max-w-[85%]";
+
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = "bg-primary/20 text-[#1c1b1b] hover:bg-primary font-bold px-4 py-3 rounded-xl transition-all shadow-sm text-left flex items-center justify-between border border-primary/20";
+            btn.innerHTML = `<span>${opt.text}</span> <span class="material-symbols-outlined text-sm">arrow_forward</span>`;
+            btn.onclick = () => {
+                // Remove the option buttons on selection to avoid duplicate clicks
+                wrapper.remove();
+                opt.callback();
+            };
+            wrapper.appendChild(btn);
+        });
+
+        body.appendChild(wrapper);
+        body.scrollTop = body.scrollHeight;
+    }
+
+    function addRecipeCardsBubble(recipesList) {
+        const body = document.getElementById('hungry-chatbot-body');
+        const container = document.createElement('div');
+        container.className = "flex flex-col gap-2.5 self-start w-full max-w-[90%] mt-1";
+
+        recipesList.forEach(rec => {
+            const card = document.createElement('a');
+            card.href = `recipe.html?id=${rec.id}`;
+            card.className = "flex items-center gap-3 bg-white p-2.5 rounded-2xl border border-gray-200/60 shadow-sm hover:scale-[1.03] transition-all";
+            card.innerHTML = `
+                <img src="${rec.image}" class="w-12 h-12 rounded-xl object-cover shadow-sm flex-shrink-0" />
+                <div class="flex-grow min-w-0">
+                    <p class="font-bold text-sm text-gray-800 truncate">${rec.name}</p>
+                    <p class="text-xs text-primary font-bold">₹${rec.price.toFixed(2)}</p>
+                </div>
+                <span class="material-symbols-outlined text-gray-400 text-lg mr-1">chevron_right</span>
+            `;
+            container.appendChild(card);
+        });
+
+        body.appendChild(container);
+        body.scrollTop = body.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+        const body = document.getElementById('hungry-chatbot-body');
+        const indicator = document.createElement('div');
+        indicator.id = 'hungry-chatbot-typing';
+        indicator.className = "bg-white border border-gray-100 p-4 rounded-2xl rounded-tl-none self-start max-w-[85%] shadow-sm flex gap-1.5 items-center";
+
+        for (let i = 0; i < 3; i++) {
+            const dot = document.createElement('div');
+            dot.className = "w-2.5 h-2.5 bg-secondary rounded-full typing-dot";
+            dot.style.animationDelay = `${i * 0.15}s`;
+            indicator.appendChild(dot);
+        }
+
+        body.appendChild(indicator);
+        body.scrollTop = body.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+        const indicator = document.getElementById('hungry-chatbot-typing');
+        if (indicator) indicator.remove();
+    }
+
+    function renderWelcomeMessage() {
+        const info = CHAT_LANGS[currentBotLang] || CHAT_LANGS.English;
+        addChatBubble(info.welcome, false);
+
+        let langCode = 'en';
+        if (currentBotLang === 'Hindi') langCode = 'hi';
+        else if (currentBotLang === 'Tamil') langCode = 'ta';
+        else if (currentBotLang === 'Telugu') langCode = 'te';
+        else if (currentBotLang === 'Malayalam') langCode = 'ml';
+
+        playChatBotTTS(info.welcome, langCode, currentBotLang);
+    }
+
+    async function handleChatbotSend() {
+        const input = document.getElementById('hungry-chatbot-input');
+        const userMsg = input.value.trim();
+        if (!userMsg) return;
+
+        input.value = '';
+        addChatBubble(userMsg, true);
+        showTypingIndicator();
+
+        // 1. Get current language configurations
+        let langCode = 'en';
+        if (currentBotLang === 'Hindi') langCode = 'hi';
+        else if (currentBotLang === 'Tamil') langCode = 'ta';
+        else if (currentBotLang === 'Telugu') langCode = 'te';
+        else if (currentBotLang === 'Malayalam') langCode = 'ml';
+
+        // 2. Translate user query to English for state-matching & processing
+        const englishMsg = (langCode === 'en') ? userMsg : await translateUserText(userMsg, langCode);
+        const lowerMsg = englishMsg.toLowerCase();
+
+        // 3. Process Response
+        setTimeout(async () => {
+            removeTypingIndicator();
+            const info = CHAT_LANGS[currentBotLang] || CHAT_LANGS.English;
+
+            // Scenario A: Rahul asks "how to use hungry"
+            if (lowerMsg.includes("how to use") || lowerMsg.includes("use hungry") || lowerMsg.includes("how hungry works")) {
+                addChatBubble(info.howToUseReply, false);
+                playChatBotTTS(info.howToUseReply, langCode, currentBotLang);
+
+                // Offer Yes/No branching buttons
+                addOptionsBubble([
+                    {
+                        text: info.yesBtnText,
+                        callback: () => {
+                            addChatBubble(info.yesBtnText, true);
+                            handleYesSelection(langCode);
+                        }
+                    },
+                    {
+                        text: info.noBtnText,
+                        callback: () => {
+                            addChatBubble(info.noBtnText, true);
+                            chatState = 'general';
+                            const noText = (currentBotLang === 'English') ? "No worries! Let me know if you need anything else."
+                                : (currentBotLang === 'Hindi') ? "कोई बात नहीं! अगर आपको किसी और चीज की जरूरत हो तो मुझे बताएं।"
+                                    : (currentBotLang === 'Tamil') ? "கவலைப்பட வேண்டாம்! வேறு ஏதேனும் தேவைப்பட்டால் எனக்குத் தெரியப்படுத்துங்கள்."
+                                        : (currentBotLang === 'Telugu') ? "ఆందోళన పడకండి! మీకు ఇంకేదైనా కావాలంటే నాకు తెలియజేయండి."
+                                            : "വിഷമിക്കേണ്ട! നിങ്ങൾക്ക് മറ്റെന്തെങ്കിലും ആവശ്യമുണ്ടെങ്കിൽ എന്നെ അറിയിക്കുക.";
+                            addChatBubble(noText, false);
+                            playChatBotTTS(noText, langCode, currentBotLang);
+                        }
+                    }
+                ]);
+                chatState = 'waiting_is_hungry';
+            }
+            // Scenario B: User replies directly to hungry question while waiting
+            else if (chatState === 'waiting_is_hungry' && (lowerMsg.includes("yes") || lowerMsg.includes("yeah") || lowerMsg.includes("hungry"))) {
+                handleYesSelection(langCode);
+            }
+            // Scenario C: Generic AI Platform Fallback
+            else {
+                // Intelligent Universal AI Engine for Hungry Assistant
+                function generateSmartHungryAIResponse(msg) {
+                    const q = msg.toLowerCase();
+
+                    // 1. Identity & Creators
+                    if (q.includes("who are you") || q.includes("what is hungry") || q.includes("about you")) {
+                        return "I am **Hungry.ai**, your intelligent culinary sous-chef and food assistant! I can guide you with step-by-step recipes, calculate exact ingredients, recommend delicious meals, find nearby restaurants, and help you order fresh groceries via Hungry Mart in 10 minutes!";
+                    }
+                    if (q.includes("who made you") || q.includes("who created") || q.includes("who developed") || q.includes("developer")) {
+                        return "I was created and developed by **Rahul Ravindran** for the Hungry culinary platform! Learn more at rahulravindran.co.in.";
+                    }
+
+                    // 2. Greetings & Status
+                    if (q.includes("how are you") || q.includes("how r u") || q.includes("what's up") || q.includes("whats up")) {
+                        return "I'm doing fantastic, Rahul! The kitchen is buzzing with sizzling aromatics. How can I help you cook or eat today?";
+                    }
+                    if (q.includes("hello") || q.includes("hi ") || q.startsWith("hi") || q === "hi") {
+                        return "Hello Rahul! Welcome to Hungry.ai. What delicious dish are we exploring today?";
+                    }
+                    if (q.includes("thank") || q.includes("thanks") || q.includes("dhanyavad") || q.includes("nandri")) {
+                        return "You're very welcome, Rahul! Let me know whenever you're hungry or ready to cook!";
+                    }
+                    if (q.includes("good morning") || q.includes("breakfast")) {
+                        return "Good morning Rahul! ☀️ How about starting the day with crispy **Masala Dosa**, fluffy Idlis, or an energizing Quinoa Chickpea bowl?";
+                    }
+                    if (q.includes("good night") || q.includes("bye") || q.includes("see you")) {
+                        return "Have a wonderful rest, Rahul! Whenever hunger strikes, Hungry.ai is always here for you. Sweet dreams! 🌙";
+                    }
+
+                    // 3. What to Eat / Meal Recommendations
+                    if (q.includes("what should i eat") || q.includes("suggest") || q.includes("recommend") || q.includes("lunch") || q.includes("dinner")) {
+                        return "Here are my top culinary recommendations for you today:<br>• **Chef's Signature Dum Biryani** (Aromatic & rich)<br>• **Paneer Butter Masala & Naan** (Creamy & flavorful)<br>• **Tandoori Chicken Skewers** (Smoky & high protein)<br>• **Dal Makhani** (Slow-cooked comfort)<br>Would you like the full recipe to cook it or want to order it nearby?";
+                    }
+
+                    // 4. Healthy / Diet / Gym / Calories / Weight loss
+                    if (q.includes("healthy") || q.includes("diet") || q.includes("calorie") || q.includes("calories") || q.includes("protein") || q.includes("weight loss") || q.includes("gym")) {
+                        return "For a healthy, nutrient-packed meal, I recommend:<br>1. **Honey Glazed Atlantic Salmon** (32g Protein, Omega-3s)<br>2. **Quinoa & Crispy Chickpea Bowl** (High fiber, plant protein)<br>3. **Palak Paneer** (Iron & fresh spinach antioxidants)<br>4. **Yellow Dhal Soup** (Light on the stomach, high protein)<br>Check out our recipe page for calorie and macro breakdowns!";
+                    }
+
+                    // 5. Cooking Techniques & Chef Secrets
+                    if (q.includes("crispy dosa") || (q.includes("dosa") && q.includes("crisp"))) {
+                        return "🧑‍🍳 **Chef Secret for Crispy Dosa**:<br>1. Add 1 tbsp chana dal & 1 tsp fenugreek (methi) while soaking rice.<br>2. Ensure tawa is medium-hot: sprinkle water, wipe clean, pour batter, and swirl quickly.<br>3. Drizzle pure ghee around edges on medium-high heat until golden brown!";
+                    }
+                    if (q.includes("biryani rice") || (q.includes("rice") && q.includes("fluffy"))) {
+                        return "🧑‍🍳 **Chef Secret for Long, Fluffy Biryani Rice**:<br>1. Soak Aged Basmati Rice for 30 minutes.<br>2. Boil in rolling boiling water with whole spices, 1 tsp oil, and lemon juice.<br>3. Cook until only 70-80% done before layering for Dum!";
+                    }
+                    if (q.includes("soft paneer") || (q.includes("paneer") && q.includes("soft"))) {
+                        return "🧑‍🍳 **Secret to Ultra-Soft Paneer**:<br>Soak paneer cubes in warm, lightly salted water for 10 minutes before adding to the gravy. Never over-fry paneer, as high heat turns it rubbery!";
+                    }
+                    if (q.includes("juicy chicken") || (q.includes("chicken") && q.includes("tender"))) {
+                        return "🧑‍🍳 **Secret for Juicy & Tender Chicken**:<br>Marinate chicken with thick yogurt (curd), lemon juice, and ginger-garlic paste for at least 45 minutes. The natural acids break down tough fibers, locking in moisture during cooking!";
+                    }
+
+                    // 6. Substitutions
+                    if (q.includes("substitute") || q.includes("replacement") || q.includes("instead of")) {
+                        if (q.includes("egg")) return "🥚 **Egg Substitutes**: For baking/coating, use 1/4 cup whisked yogurt/curd, 1/4 cup unsweetened applesauce, or 1 tbsp ground flaxseed mixed with 3 tbsp warm water per egg.";
+                        if (q.includes("curd") || q.includes("yogurt")) return "🥛 **Curd/Yogurt Substitute**: Use plain buttermilk, greek yogurt, or milk mixed with 1 tsp lemon juice or vinegar.";
+                        if (q.includes("paneer")) return "🧀 **Paneer Substitute**: Firm tofu, halloumi cheese, or pressed ricotta work as great substitutes in curries!";
+                        if (q.includes("cream")) return "🥣 **Heavy Cream Substitute**: Blend soaked cashews with a splash of milk/water for a rich, silky restaurant-style gravy.";
+                        if (q.includes("butter")) return "🧈 **Butter Substitute**: Use Pure Ghee, Olive Oil, or Coconut Oil in 1:1 ratio.";
+                        return "Let me know which ingredient you want to substitute (e.g., egg, curd, paneer, cream, butter) and I'll give you the perfect culinary alternative!";
+                    }
+
+                    // 7. Offers, Coupons & Discounts
+                    if (q.includes("coupon") || q.includes("discount") || q.includes("promo") || q.includes("offer") || q.includes("code")) {
+                        return "🎉 **Active Promo Codes for Rahul**:<br>• **`BIRYANI50`**: Flat 50% OFF on all Biryani orders!<br>• **`BRIYANIBHAI`**: 30% OFF instant discount on entire cart!<br>• **`RAHUL FRIEND`**: Special 20% friend discount!<br>• **`HUNGRY WALA`**: Free delivery on orders over ₹300.<br>Apply these coupon codes at checkout on the Cart page!";
+                    }
+
+                    // 8. Delivery, Mart, & Order Status
+                    if (q.includes("delivery") || q.includes("time") || q.includes("fast") || q.includes("how long")) {
+                        return "⚡ **Hungry Delivery Timelines**:<br>• **Hungry Mart (Groceries & Ingredients)**: Express delivery in **10 Minutes**!<br>• **Cloud Kitchen (Hot Food)**: Freshly prepared and delivered in **20 to 30 Minutes**.";
+                    }
+                    if (q.includes("track") || q.includes("where is my order") || q.includes("order status") || q.includes("history")) {
+                        return "📦 You can view your live orders and previous purchases anytime by opening the **Menu (Sidebar) > Order History** or tracking via the Cart confirmation panel!";
+                    }
+                    if (q.includes("mart") || q.includes("grocery") || q.includes("vegetables") || q.includes("ingredients")) {
+                        return "🛒 **Hungry Mart** delivers farm-fresh groceries, vegetables, dairy, meat, spices, and pre-measured recipe ingredient packs straight to your doorstep in 10 minutes! Head over to the **Hungry Mart** tab to order.";
+                    }
+                    if (q.includes("nearby") || q.includes("hotel") || q.includes("restaurant") || q.includes("map")) {
+                        return "📍 Visit the **Order Nearby** page to automatically pinpoint your exact live location and explore the highest-rated authentic restaurants and signature dishes in your neighborhood!";
+                    }
+                    if (q.includes("payment") || q.includes("cod") || q.includes("upi") || q.includes("card") || q.includes("gpay")) {
+                        return "💳 We support all secure payment methods: **Google Pay, PhonePe, UPI, Credit/Debit Cards, Net Banking, and Cash on Delivery (COD)** with 0% extra convenience fee!";
+                    }
+                    if (q.includes("price") || q.includes("cost") || q.includes("cheap")) {
+                        return "Our prices are very affordable! Chef's special Chicken Biryani is just ₹301, and Masala Dosa is just ₹412. You can also get coupon discounts in your cart page!";
+                    }
+                    if (q.includes("cancel") || q.includes("refund")) {
+                        return "🔄 Orders can be easily cancelled before preparation starts directly from Order History, with instant refunds processed to your original payment method!";
+                    }
+
+                    // 9. Jokes & Fun
+                    if (q.includes("joke") || q.includes("funny")) {
+                        const jokes = [
+                            "Why did the tomato blush? Because it saw the salad dressing! 🍅🥗",
+                            "What did the biryani say to the raita? 'You complete me, cool buddy!' 🍛🥒",
+                            "Why do French chefs use only one egg to make an omelette? Because one egg is an 'oeuf'! 🍳",
+                            "What's a potato's favorite song? 'Spud, Spud, Spud' by the Beatles! 🥔"
+                        ];
+                        return jokes[Math.floor(Math.random() * jokes.length)];
+                    }
+
+                    // 10. Specific Dish Lookups in Database
+                    for (const key of Object.keys(RECIPES)) {
+                        const rec = RECIPES[key];
+                        if (q.includes(key.replace(/-/g, ' ')) || q.includes(rec.name.toLowerCase())) {
+                            const ingSummary = rec.ingredients.slice(0, 4).map(i => i.name).join(', ');
+                            return `🍲 **${rec.name}** is one of our chef favorites (₹${rec.price})!<br>• **Prep Time**: ${rec.prepTime || '20 mins'} | **Cooking Time**: ${rec.cookTime || '30 mins'}<br>• **Key Ingredients**: ${ingSummary} and aromatic spices.<br>• **Calories**: ${rec.nutrition ? rec.nutrition.calories : '450 kcal'}<br><a href="recipe.html?id=${key}" class="text-secondary font-bold underline mt-1 inline-block">Click here to view full recipe & cook step-by-step →</a>`;
+                        }
+                    }
+
+                    // 11. General Food Terms & Concepts
+                    if (q.includes("dum") || q.includes("dum cooking")) {
+                        return "🔥 **Dum Cooking**: A traditional slow-cooking technique where the pot is sealed with dough to trap steam, infusing the meat and rice with rich aroma and intense flavors over low heat!";
+                    }
+                    if (q.includes("ghee") || q.includes("clarified butter")) {
+                        return "🧈 **Ghee (Clarified Butter)**: Made by simmering butter until all water evaporates and milk solids caramelize, leaving behind a rich, nutty golden liquid with a high smoke point (485°F) perfect for searing and tempering!";
+                    }
+                    if (q.includes("tandoor") || q.includes("tandoori")) {
+                        return "🏺 **Tandoor**: A traditional cylindrical clay oven fired with charcoal or wood, reaching temperatures over 900°F (480°C) to give naan and tandoori meats their signature smoky char!";
+                    }
+                    if (q.includes("spicy") || q.includes("too spicy")) {
+                        return "🌶️ If your curry or dish is too spicy, balance it by adding: **dairy (cream, yogurt, milk, ghee), a squeeze of lemon juice, or a pinch of sugar/jaggery** to mellow the capsaicin heat!";
+                    }
+
+                    // 12. Smart Universal Culinary Assistant Fallback
+                    return `That's a great question, Rahul! As your Hungry.ai assistant, I can help you cook any dish with step-by-step instructions, recommend meals, or order groceries in 10 minutes.<br><br>💡 *Try asking:*<br>• "How to make Biryani?"<br>• "Secret for crispy dosa"<br>• "What are the latest coupon codes?"<br>• "Suggest high protein dinner"`;
+                }
+
+                const finalEngResponse = generateSmartHungryAIResponse(englishMsg);
+
+                // Translate fallback response to target lang
+                const finalTargetResponse = (langCode === 'en') ? finalEngResponse : await translateText(finalEngResponse, langCode);
+                addChatBubble(finalTargetResponse, false);
+                playChatBotTTS(finalTargetResponse, langCode, currentBotLang);
+            }
+        }, 1000);
+    }
+
+    async function handleYesSelection(langCode) {
+        const info = CHAT_LANGS[currentBotLang] || CHAT_LANGS.English;
+        addChatBubble(info.cookOrOrderQuestion, false);
+        playChatBotTTS(info.cookOrOrderQuestion, langCode, currentBotLang);
+
+        addOptionsBubble([
+            {
+                text: info.cookBtn,
+                callback: () => {
+                    addChatBubble(info.cookBtn, true);
+                    handleBranchSelection('cook', langCode);
+                }
+            },
+            {
+                text: info.orderBtn,
+                callback: () => {
+                    addChatBubble(info.orderBtn, true);
+                    handleBranchSelection('order', langCode);
+                }
+            }
+        ]);
+        chatState = 'waiting_cook_or_order';
+    }
+
+    async function handleBranchSelection(branch, langCode) {
+        const info = CHAT_LANGS[currentBotLang] || CHAT_LANGS.English;
+
+        if (branch === 'cook') {
+            addChatBubble(info.cookResult, false);
+            playChatBotTTS(info.cookResult, langCode, currentBotLang);
+
+            // Fetch top 4 recipes from database
+            const list = [
+                { id: 'chicken-biryani', name: RECIPES['chicken-biryani'].name, price: RECIPES['chicken-biryani'].price, image: RECIPES['chicken-biryani'].image },
+                { id: 'masala-dosa', name: RECIPES['masala-dosa'].name, price: RECIPES['masala-dosa'].price, image: RECIPES['masala-dosa'].image },
+                { id: 'paneer-tikka', name: RECIPES['paneer-tikka'].name, price: RECIPES['paneer-tikka'].price, image: RECIPES['paneer-tikka'].image },
+                { id: 'dhal-soup', name: RECIPES['dhal-soup'].name, price: RECIPES['dhal-soup'].price, image: RECIPES['dhal-soup'].image }
+            ];
+            addRecipeCardsBubble(list);
+            chatState = 'general';
+        } else {
+            addChatBubble(info.orderResult, false);
+            playChatBotTTS(info.orderResult, langCode, currentBotLang);
+
+            addOptionsBubble([
+                {
+                    text: info.orderFoodBtn,
+                    callback: () => {
+                        window.location.href = 'nearby.html';
+                    }
+                },
+                {
+                    text: info.orderMartBtn,
+                    callback: () => {
+                        window.location.href = 'mart.html';
+                    }
+                }
+            ]);
+            chatState = 'general';
+        }
+    }
+
+    // 5. INITIATE ON LOAD
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', injectChatbotDOM);
+    } else {
+        injectChatbotDOM();
+    }
+})();
+

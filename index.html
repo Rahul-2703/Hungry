@@ -179,10 +179,13 @@
         }
 
         @keyframes martGlowFilter {
-            0%, 100% {
+
+            0%,
+            100% {
                 filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.8)) drop-shadow(0 0 14px rgba(255, 215, 0, 0.9));
                 transform: scale(1);
             }
+
             50% {
                 filter: drop-shadow(0 0 16px rgba(239, 68, 68, 1)) drop-shadow(0 0 25px rgba(255, 215, 0, 1));
                 transform: scale(1.06);
@@ -199,9 +202,13 @@
     class="bg-background text-on-background font-body-md selection:bg-primary-fixed selection:text-on-primary-fixed overflow-x-hidden">
     <!-- Loader -->
     <div id="loader"
-        class="fixed inset-0 z-[200] bg-white flex items-center justify-center transition-opacity duration-1000 hidden">
-        <video id="loader-video" src="img/Eat.mp4" autoplay muted playsinline
-            class="w-full h-full object-contain"></video>
+        class="fixed inset-0 z-[99999] bg-white flex items-center justify-center transition-opacity duration-1000 hidden overflow-hidden pointer-events-auto w-screen h-screen h-[100dvh]">
+        <!-- Mobile Video (Original Eat.mp4 with clean background matching) -->
+        <video id="loader-video-mobile" src="img/Eat.mp4" autoplay muted playsinline webkit-playsinline disablePictureInPicture preload="auto"
+            class="block md:hidden w-full h-full object-contain"></video>
+        <!-- Desktop Video (Full edge-to-edge cutter version) -->
+        <video id="loader-video-desktop" src="img/Eat (online-video-cutter.com).mp4" autoplay muted playsinline webkit-playsinline disablePictureInPicture preload="auto"
+            class="hidden md:block w-full h-full object-cover fixed inset-0 min-w-full min-h-full"></video>
     </div>
 
     <!-- TopNavBar -->
@@ -215,12 +222,31 @@
 
             <!-- Hungry Mart Badge (Desktop only in header, hidden on mobile/tablet to prevent text overlap) -->
             <a href="mart.html" class="hidden lg:flex items-center gap-3 relative group">
-                <img src="img/HUNGRY MART.png" alt="HUNGRY MART" class="h-12 sm:h-14 w-auto object-contain mart-glow-plain transition-transform group-hover:scale-105" />
-                
+                <div
+                    class="relative w-12 sm:w-14 h-12 sm:h-14 flex-shrink-0 transition-transform group-hover:scale-105 select-none mart-glow-plain bg-[#FFD700] rounded-full flex items-center justify-center border-2 border-white/20 shadow-md">
+                    <svg viewBox="0 0 100 100" class="w-[85%] h-[85%] select-none">
+                        <path d="M 22,25 L 85,25 L 75,65 L 32,65 Z" fill="#bc0008" />
+                        <path d="M 12,18 L 22,25 L 28,65 A 6,6 0 0,0 34,71 L 80,71" fill="none" stroke="#bc0008"
+                            stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+                        <circle cx="38" cy="80" r="7" fill="#4C8235" stroke="#fff" stroke-width="2" />
+                        <circle cx="38" cy="80" r="2" fill="#fff" />
+                        <circle cx="72" cy="80" r="7" fill="#4C8235" stroke="#fff" stroke-width="2" />
+                        <circle cx="72" cy="80" r="2" fill="#fff" />
+                        <text x="53" y="42" fill="#ffffff" font-family="Plus Jakarta Sans, sans-serif" font-weight="900"
+                            font-size="13" text-anchor="middle" letter-spacing="0.5">HUNGRY</text>
+                        <text x="53" y="57" fill="#FFD700" font-family="Plus Jakarta Sans, sans-serif" font-weight="900"
+                            font-size="14" text-anchor="middle" letter-spacing="1">MART</text>
+                    </svg>
+                </div>
+
                 <div class="flex items-center">
-                    <span class="inline-flex items-center justify-center gap-2 w-[180px] sm:w-[210px] h-10 px-4 bg-red-600 text-white font-extrabold text-xs sm:text-sm rounded-full shadow-lg border border-red-400 uppercase tracking-wider overflow-hidden select-none">
-                        <span class="material-symbols-outlined text-sm sm:text-base text-yellow-300 animate-bounce flex-shrink-0">bolt</span>
-                        <span class="mart-ticker-label transition-all duration-300 inline-block text-center whitespace-nowrap">Hungry Mart</span>
+                    <span
+                        class="inline-flex items-center justify-center gap-2 w-[180px] sm:w-[210px] h-10 px-4 bg-red-600 text-white font-extrabold text-xs sm:text-sm rounded-full shadow-lg border border-red-400 uppercase tracking-wider overflow-hidden select-none">
+                        <span
+                            class="material-symbols-outlined text-sm sm:text-base text-yellow-300 animate-bounce flex-shrink-0">bolt</span>
+                        <span
+                            class="mart-ticker-label transition-all duration-300 inline-block text-center whitespace-nowrap">Hungry
+                            Mart</span>
                     </span>
                 </div>
             </a>
@@ -367,12 +393,32 @@
                 <!-- Hungry Mart Hero Section Badge (Mobile & Tablet only, hidden on Desktop) -->
                 <div class="flex lg:hidden flex-wrap items-center justify-center md:justify-start gap-4 mb-6 z-20">
                     <a href="mart.html" class="flex items-center gap-3 group">
-                        <img src="img/HUNGRY MART.png" alt="HUNGRY MART" class="h-14 sm:h-16 md:h-20 w-auto object-contain mart-glow-plain transition-transform group-hover:scale-105" />
-                        
+                        <div
+                            class="relative w-14 sm:w-16 md:w-20 h-14 sm:h-16 md:h-20 flex-shrink-0 transition-transform group-hover:scale-105 select-none mart-glow-plain bg-[#FFD700] rounded-full flex items-center justify-center border-2 border-white/20 shadow-md">
+                            <svg viewBox="0 0 100 100" class="w-[85%] h-[85%] select-none">
+                                <path d="M 22,25 L 85,25 L 75,65 L 32,65 Z" fill="#bc0008" />
+                                <path d="M 12,18 L 22,25 L 28,65 A 6,6 0 0,0 34,71 L 80,71" fill="none" stroke="#bc0008"
+                                    stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+                                <circle cx="38" cy="80" r="7" fill="#4C8235" stroke="#fff" stroke-width="2" />
+                                <circle cx="38" cy="80" r="2" fill="#fff" />
+                                <circle cx="72" cy="80" r="7" fill="#4C8235" stroke="#fff" stroke-width="2" />
+                                <circle cx="72" cy="80" r="2" fill="#fff" />
+                                <text x="53" y="42" fill="#ffffff" font-family="Plus Jakarta Sans, sans-serif"
+                                    font-weight="900" font-size="13" text-anchor="middle"
+                                    letter-spacing="0.5">HUNGRY</text>
+                                <text x="53" y="57" fill="#FFD700" font-family="Plus Jakarta Sans, sans-serif"
+                                    font-weight="900" font-size="14" text-anchor="middle" letter-spacing="1">MART</text>
+                            </svg>
+                        </div>
+
                         <div class="flex items-center">
-                            <span class="inline-flex items-center justify-center gap-2 w-[180px] sm:w-[210px] h-10 sm:h-11 px-4 bg-red-600 text-white font-extrabold text-xs sm:text-sm md:text-base rounded-full shadow-lg border border-red-400 uppercase tracking-wider overflow-hidden select-none">
-                                <span class="material-symbols-outlined text-sm sm:text-base text-yellow-300 animate-bounce flex-shrink-0">bolt</span>
-                                <span class="mart-ticker-label transition-all duration-300 inline-block text-center whitespace-nowrap">Hungry Mart</span>
+                            <span
+                                class="inline-flex items-center justify-center gap-2 w-[180px] sm:w-[210px] h-10 sm:h-11 px-4 bg-red-600 text-white font-extrabold text-xs sm:text-sm md:text-base rounded-full shadow-lg border border-red-400 uppercase tracking-wider overflow-hidden select-none">
+                                <span
+                                    class="material-symbols-outlined text-sm sm:text-base text-yellow-300 animate-bounce flex-shrink-0">bolt</span>
+                                <span
+                                    class="mart-ticker-label transition-all duration-300 inline-block text-center whitespace-nowrap">Hungry
+                                    Mart</span>
                             </span>
                         </div>
                     </a>
@@ -422,17 +468,19 @@
                 <!-- Floating card/badge: 20-min delivery (Visible on all screens: mobile, tablet, desktop) -->
                 <div
                     class="absolute top-[0%] left-2 sm:left-[5%] bg-white rounded-xl sm:rounded-2xl p-2.5 sm:p-4 shadow-xl z-20 flex items-center gap-2 sm:gap-3 animate-float-mid">
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-[#FFD700] rounded-full flex items-center justify-center flex-shrink-0">
+                    <div
+                        class="w-8 h-8 sm:w-10 sm:h-10 bg-[#FFD700] rounded-full flex items-center justify-center flex-shrink-0">
                         <span class="material-symbols-outlined text-on-surface text-sm sm:text-base">pace</span>
                     </div>
                     <div>
-                        <p class="text-[9px] sm:text-[10px] text-gray-400 font-bold uppercase tracking-wider">Fastest Delivery</p>
+                        <p class="text-[9px] sm:text-[10px] text-gray-400 font-bold uppercase tracking-wider">Fastest
+                            Delivery</p>
                         <p class="text-xs sm:text-sm font-black text-on-surface">20 Mins</p>
                     </div>
                 </div>
 
                 <!-- Floating card/badge: Rating (Visible on all screens: mobile, tablet, desktop) -->
-                <div class="absolute bottom-[0%] right-2 sm:right-[5%] bg-white rounded-xl sm:rounded-2xl p-2.5 sm:p-4 shadow-xl z-20 flex items-center gap-2 sm:gap-3 animate-float-slow"
+                <div class="absolute bottom-[12%] sm:bottom-[16%] right-2 sm:right-[7%] bg-white rounded-xl sm:rounded-2xl p-2.5 sm:p-4 shadow-xl z-20 flex items-center gap-2 sm:gap-3 animate-float-slow"
                     style="animation-delay: 1s;">
                     <div
                         class="w-8 h-8 sm:w-10 sm:h-10 bg-yellow-400 rounded-full flex items-center justify-center text-white shadow-sm flex-shrink-0">
@@ -440,7 +488,8 @@
                     </div>
                     <div>
                         <p class="text-[9px] sm:text-[10px] text-gray-400 font-bold uppercase tracking-wider">Rating</p>
-                        <p class="text-xs sm:text-sm font-black text-black">4.9 <span class="text-yellow-500">★★★★★</span></p>
+                        <p class="text-xs sm:text-sm font-black text-black">4.9 <span
+                                class="text-yellow-500">★★★★★</span></p>
                     </div>
                 </div>
 
@@ -1021,19 +1070,50 @@
 
             if (!sessionStorage.getItem('hasLoaded') || forceLoader) {
                 const loader = document.getElementById('loader');
-                const loaderVideo = document.getElementById('loader-video');
-                if (loaderVideo) {
-                    loaderVideo.playbackRate = 0.5; // slow down video by half
-                    // Make sure the video plays from beginning if it was somehow paused
-                    loaderVideo.currentTime = 0;
-                    loaderVideo.play();
+                const isMobile = window.innerWidth < 768;
+                const loaderVideo = isMobile
+                    ? document.getElementById('loader-video-mobile')
+                    : document.getElementById('loader-video-desktop');
+
+                let hasEnded = false;
+                const hideLoader = () => {
+                    if (hasEnded) return;
+                    hasEnded = true;
+                    if (loader) {
+                        loader.style.opacity = '0';
+                        setTimeout(() => loader.classList.add('hidden'), 800);
+                    }
+                };
+
+                if (loader) {
+                    loader.classList.remove('hidden');
+                    loader.style.opacity = '1';
                 }
-                loader.classList.remove('hidden');
-                loader.style.opacity = '1';
-                setTimeout(() => {
-                    loader.style.opacity = '0';
-                    setTimeout(() => loader.classList.add('hidden'), 1000); // Just hide instead of remove so we can reuse
-                }, 4500); // increased from 3000 to allow slower video to play
+
+                if (loaderVideo) {
+                    loaderVideo.currentTime = 0;
+                    loaderVideo.playbackRate = isMobile ? 0.6 : 1.0;
+
+                    // Listen to full video finish
+                    loaderVideo.addEventListener('ended', hideLoader);
+
+                    // Fallback check if time reaches end
+                    loaderVideo.addEventListener('timeupdate', () => {
+                        if (loaderVideo.duration && loaderVideo.currentTime >= loaderVideo.duration - 0.15) {
+                            hideLoader();
+                        }
+                    });
+
+                    loaderVideo.play().catch(e => {
+                        console.log("Autoplay issue: ", e);
+                        setTimeout(hideLoader, 3500);
+                    });
+                } else {
+                    hideLoader();
+                }
+
+                // Generous safety fallback so it never hangs
+                setTimeout(hideLoader, 15000);
                 sessionStorage.setItem('hasLoaded', 'true');
             }
 

@@ -10,6 +10,8 @@
     <link rel="icon" type="image/png" sizes="192x192" href="img/Eat-removebg-preview.png?v=2">
     <link rel="apple-touch-icon" sizes="180x180" href="img/Eat-removebg-preview.png?v=2">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,800&family=Work+Sans:wght@400;600&family=JetBrains+Mono:wght@500&display=swap"
         rel="stylesheet" />
@@ -128,8 +130,13 @@
     class="bg-background text-on-background font-body-md selection:bg-primary-fixed selection:text-on-primary-fixed overflow-x-hidden">
     <!-- Loader -->
     <div id="loader"
-        class="fixed inset-0 z-[200] bg-white flex items-center justify-center transition-opacity duration-1000 hidden">
-        <video id="loader-video" src="img/Eat.mp4" autoplay muted playsinline class="w-full h-full object-contain"></video>
+        class="fixed inset-0 z-[99999] bg-white flex items-center justify-center transition-opacity duration-1000 hidden overflow-hidden pointer-events-auto w-screen h-screen h-[100dvh]">
+        <!-- Mobile Video (Original Eat.mp4 with clean background matching) -->
+        <video id="loader-video-mobile" src="img/Eat.mp4" autoplay muted playsinline webkit-playsinline disablePictureInPicture preload="auto"
+            class="block md:hidden w-full h-full object-contain"></video>
+        <!-- Desktop Video (Full edge-to-edge cutter version) -->
+        <video id="loader-video-desktop" src="img/Eat (online-video-cutter.com).mp4" autoplay muted playsinline webkit-playsinline disablePictureInPicture preload="auto"
+            class="hidden md:block w-full h-full object-cover fixed inset-0 min-w-full min-h-full"></video>
     </div>
     <!-- TopNavBar -->
     <nav
@@ -142,7 +149,18 @@
 
             <!-- Hungry Mart Badge (Desktop only in header, hidden on mobile/tablet to prevent text overlap) -->
             <a href="mart.html" class="hidden lg:flex items-center gap-3 relative group">
-                <img src="img/HUNGRY MART.png" alt="HUNGRY MART" class="h-12 sm:h-14 w-auto object-contain mart-glow-plain transition-transform group-hover:scale-105" />
+                <div class="relative w-12 sm:w-14 h-12 sm:h-14 flex-shrink-0 transition-transform group-hover:scale-105 select-none mart-glow-plain bg-[#FFD700] rounded-full flex items-center justify-center border-2 border-white/20 shadow-md">
+                    <svg viewBox="0 0 100 100" class="w-[85%] h-[85%] select-none">
+                        <path d="M 22,25 L 85,25 L 75,65 L 32,65 Z" fill="#bc0008" />
+                        <path d="M 12,18 L 22,25 L 28,65 A 6,6 0 0,0 34,71 L 80,71" fill="none" stroke="#bc0008" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+                        <circle cx="38" cy="80" r="7" fill="#4C8235" stroke="#fff" stroke-width="2" />
+                        <circle cx="38" cy="80" r="2" fill="#fff" />
+                        <circle cx="72" cy="80" r="7" fill="#4C8235" stroke="#fff" stroke-width="2" />
+                        <circle cx="72" cy="80" r="2" fill="#fff" />
+                        <text x="53" y="42" fill="#ffffff" font-family="Plus Jakarta Sans, sans-serif" font-weight="900" font-size="13" text-anchor="middle" letter-spacing="0.5">HUNGRY</text>
+                        <text x="53" y="57" fill="#FFD700" font-family="Plus Jakarta Sans, sans-serif" font-weight="900" font-size="14" text-anchor="middle" letter-spacing="1">MART</text>
+                    </svg>
+                </div>
                 
                 <div class="flex items-center">
                     <span class="inline-flex items-center justify-center gap-2 w-[180px] sm:w-[210px] h-10 px-4 bg-red-600 text-white font-extrabold text-xs sm:text-sm rounded-full shadow-lg border border-red-400 uppercase tracking-wider overflow-hidden select-none">
@@ -184,209 +202,68 @@
         </a>
     </div>
 
-    <main class="flex-grow pt-20 flex flex-col md:flex-row h-screen">
+    <main class="flex-grow pt-2 flex flex-col lg:flex-row min-h-[calc(100vh-80px)]">
         <!-- Interactive Map Container (Left) -->
-        <section class="relative w-full md:w-[60%] lg:w-[65%] h-[409px] md:h-full overflow-hidden">
-            <!-- Map Placeholder -->
-            <div class="w-full h-full bg-gray-100">
-                <img class="w-full h-full object-cover opacity-80"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtUSU0MWykFWmA0dgXjpdimvU067QuV6ek8Bb21e-QYy8vJLGVJLW1Ldui_utWv2dxQYINnuYSkUZaBJcMb11QfRLXDx53wyb4WxAS7NvHA9rVsCpd_7Co6x0AnUr0kVlFO-w6PNjq0MIWS7-gn0JQeS4xw7DRU1mAfjGG6EJOCGa1rdJercZohBINymMYLpyhTeTINAbXcqsNBURyzs_nOnYojVM5pa5uPQ-wwhg6B4jeyBxp23ZV" />
-            </div>
-            <!-- Custom Floating Map Pins -->
-            <div class="absolute inset-0 pointer-events-none">
-                <!-- Pin 1 -->
-                <div class="absolute top-[30%] left-[40%] pointer-events-auto map-pin cursor-pointer group">
-                    <div
-                        class="bg-red-600 text-white p-2 rounded-full shadow-lg flex items-center justify-center border-2 border-white">
-                        <span class="material-symbols-outlined text-[20px]">restaurant</span>
-                    </div>
-                    <div
-                        class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-white px-3 py-1 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                        <span class="font-bold text-sm">Burger Palace</span>
-                    </div>
-                </div>
-                <!-- Pin 2 -->
-                <div class="absolute top-[55%] left-[25%] pointer-events-auto map-pin cursor-pointer group">
-                    <div
-                        class="bg-green-600 text-white p-2 rounded-full shadow-lg flex items-center justify-center border-2 border-white">
-                        <span class="material-symbols-outlined text-[20px]">local_pizza</span>
-                    </div>
-                    <div
-                        class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-white px-3 py-1 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                        <span class="font-bold text-sm">Luigi's Oven</span>
-                    </div>
-                </div>
-                <!-- Pin 3 -->
-                <div class="absolute top-[45%] left-[70%] pointer-events-auto map-pin cursor-pointer group">
-                    <div
-                        class="bg-[#FFD700] text-black p-2 rounded-full shadow-lg flex items-center justify-center border-2 border-white">
-                        <span class="material-symbols-outlined text-[20px]">ramen_dining</span>
-                    </div>
-                    <div
-                        class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-white px-3 py-1 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                        <span class="font-bold text-sm">Noodle Zen</span>
-                    </div>
-                </div>
-            </div>
+        <section class="relative w-full lg:w-[60%] h-[400px] lg:h-auto min-h-[400px] overflow-hidden bg-gray-100 border-r border-gray-200">
+            <!-- Real Leaflet Map View -->
+            <div id="map" class="w-full h-full min-h-[400px] z-0"></div>
+
             <!-- Floating Search/Filter Controls on Map -->
-            <div class="absolute top-6 left-6 right-6 flex items-center gap-3 md:max-w-md">
-                <div
-                    class="flex-grow glass-panel rounded-full shadow-lg flex items-center px-4 py-2 border border-white/50">
-                    <span class="material-symbols-outlined text-gray-500">location_on</span>
-                    <input class="bg-transparent border-none focus:ring-0 text-sm font-semibold w-full outline-none"
-                        type="text" value="Downtown, San Francisco" />
+            <div class="absolute top-4 left-4 right-4 z-[400] flex items-center gap-2 max-w-lg">
+                <div class="flex-grow glass-panel bg-white/95 backdrop-blur-md rounded-2xl shadow-xl flex items-center px-4 py-2.5 border border-dark/10">
+                    <span class="material-symbols-outlined text-secondary mr-2 animate-pulse">location_on</span>
+                    <input id="user-location-input" class="bg-transparent border-none focus:ring-0 text-xs sm:text-sm font-bold text-gray-900 w-full outline-none"
+                        type="text" placeholder="Detecting your location..." />
+                    <button onclick="searchLocationFromInput()" class="text-xs bg-[#FFD700] hover:bg-yellow-400 text-black font-extrabold px-3 py-1.5 rounded-xl ml-2 shadow-sm transition-all flex items-center gap-1 flex-shrink-0">
+                        <span>Search</span>
+                    </button>
                 </div>
-                <button
-                    class="bg-red-600 text-white p-3 rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all pointer-events-auto">
-                    <span class="material-symbols-outlined">my_location</span>
+                <button onclick="triggerLiveGeolocation()" title="Locate Me (GPS)"
+                    class="bg-secondary text-white p-3 rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-xl" id="gps-icon">my_location</span>
                 </button>
+            </div>
+
+            <!-- Live Status Toast on Map -->
+            <div id="map-status-pill" class="absolute bottom-4 left-4 z-[400] bg-[#1c1b1b]/90 text-white text-xs font-bold px-4 py-2 rounded-xl backdrop-blur-md shadow-lg flex items-center gap-2 border border-white/10">
+                <span class="w-2 h-2 rounded-full bg-green-400 animate-ping"></span>
+                <span id="map-status-text">Locating nearby authentic restaurants...</span>
             </div>
         </section>
 
         <!-- Restaurant List & Filters (Right) -->
-        <aside
-            class="w-full md:w-[40%] lg:w-[35%] h-full bg-white flex flex-col border-l border-gray-200 shadow-2xl z-10">
+        <aside class="w-full lg:w-[40%] bg-white flex flex-col border-l border-gray-200 shadow-2xl z-10 min-h-[600px] lg:h-auto">
             <!-- Filter Header -->
-            <div class="p-4 border-b border-gray-200 bg-white">
-                <h2 class="font-bold text-2xl text-gray-900 mb-2">Nearby Cravings</h2>
-                <!-- Category Scroll -->
-                <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-2">
-                    <button
-                        class="whitespace-nowrap px-4 py-1.5 rounded-full bg-[#FFD700] text-black font-bold text-xs">All
-                        Cuisines</button>
-                    <button
-                        class="whitespace-nowrap px-4 py-1.5 rounded-full bg-gray-100 text-gray-700 font-medium text-xs hover:bg-gray-200 transition-colors">Burgers</button>
-                    <button
-                        class="whitespace-nowrap px-4 py-1.5 rounded-full bg-gray-100 text-gray-700 font-medium text-xs hover:bg-gray-200 transition-colors">Sushi</button>
-                    <button
-                        class="whitespace-nowrap px-4 py-1.5 rounded-full bg-gray-100 text-gray-700 font-medium text-xs hover:bg-gray-200 transition-colors">Pizza</button>
-                    <button
-                        class="whitespace-nowrap px-4 py-1.5 rounded-full bg-gray-100 text-gray-700 font-medium text-xs hover:bg-gray-200 transition-colors">Healthy</button>
-                </div>
-                <!-- Price/Rating Toggles -->
-                <div class="flex items-center justify-between mt-3">
-                    <div class="flex gap-2">
-                        <button
-                            class="text-[10px] font-bold px-2 py-1 border border-gray-300 rounded text-gray-500 hover:bg-gray-100 transition-all">$</button>
-                        <button
-                            class="text-[10px] font-bold px-2 py-1 border border-[#FFD700] text-black rounded bg-[#FFD700]/20">$$</button>
-                        <button
-                            class="text-[10px] font-bold px-2 py-1 border border-gray-300 rounded text-gray-500 hover:bg-gray-100 transition-all">$$$</button>
+            <div class="p-4 sm:p-5 border-b border-gray-200 bg-white sticky top-0 z-20 shadow-sm">
+                <div class="flex justify-between items-center mb-2">
+                    <div>
+                        <h2 class="font-extrabold text-xl sm:text-2xl text-gray-900" id="nearby-headline">Authentic Cravings Nearby</h2>
+                        <p class="text-xs font-semibold text-gray-500 flex items-center gap-1" id="nearby-subheadline">
+                            <span class="material-symbols-outlined text-xs text-secondary">near_me</span>
+                            <span id="detected-locality-text">Locating your area...</span>
+                        </p>
                     </div>
-                    <button class="flex items-center gap-1 text-xs font-bold text-red-600 hover:underline">
-                        <span class="material-symbols-outlined text-sm">tune</span>
-                        More Filters
-                    </button>
+                    <span class="bg-red-50 text-secondary text-xs font-extrabold px-3 py-1.5 rounded-full border border-red-200 shadow-sm" id="restaurant-count-badge">8 Places</span>
+                </div>
+
+                <!-- Category Scroll Filters -->
+                <div class="flex gap-2 overflow-x-auto hide-scrollbar pt-2 pb-1" id="category-filter-bar">
+                    <button onclick="filterCuisine('all', this)" class="cuisine-btn active whitespace-nowrap px-4 py-1.5 rounded-full bg-secondary text-white font-extrabold text-xs shadow-md transition-all">All</button>
+                    <button onclick="filterCuisine('biryani', this)" class="cuisine-btn whitespace-nowrap px-4 py-1.5 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 font-bold text-xs transition-all">Biryani & Non-Veg</button>
+                    <button onclick="filterCuisine('south_indian', this)" class="cuisine-btn whitespace-nowrap px-4 py-1.5 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 font-bold text-xs transition-all">South Indian</button>
+                    <button onclick="filterCuisine('north_indian', this)" class="cuisine-btn whitespace-nowrap px-4 py-1.5 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 font-bold text-xs transition-all">North Indian</button>
+                    <button onclick="filterCuisine('cafe', this)" class="cuisine-btn whitespace-nowrap px-4 py-1.5 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 font-bold text-xs transition-all">Cafe & Fast Food</button>
+                    <button onclick="filterCuisine('desserts', this)" class="cuisine-btn whitespace-nowrap px-4 py-1.5 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 font-bold text-xs transition-all">Sweets & Desserts</button>
                 </div>
             </div>
 
-            <!-- List of Restaurants -->
-            <div class="flex-grow overflow-y-auto p-4 space-y-4 hide-scrollbar">
-                <!-- Restaurant Card 1 -->
-                <div
-                    class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 hover:shadow-md hover:scale-[1.01] transition-all cursor-pointer group">
-                    <div class="flex gap-4">
-                        <div class="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
-                            <img class="w-full h-full object-cover"
-                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmor58NUT1G-pI4f73_MlqQepwHR4b7KxVCM7jcI6IaJ3bSebhSp258WBQOpoBovPbm0bZPtgTxS7ktpkSoUTYjNMLImIZJdYvNo0j_zMjPDO201PebME3YZaL2814ii-ythBbHpFSFclSZ6Ue_Iw8ZOgzYo7ghTy247675dL3rh4SbGY9Kwzd15nseKexiqmdd8DcgVhfz8rEypdy5PXgu6RNSe9rvEbxmYMsCA44W4RVyABhd4SW" />
-                        </div>
-                        <div class="flex-grow">
-                            <div class="flex justify-between items-start">
-                                <h3 class="font-bold text-lg text-gray-900 group-hover:text-red-600 transition-colors">
-                                    The Burger Palace</h3>
-                                <div
-                                    class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase">
-                                    PROMO</div>
-                            </div>
-                            <p class="text-gray-500 text-xs mb-2">American • Burgers • Grill</p>
-                            <div class="flex items-center gap-4 text-xs font-bold text-gray-600">
-                                <div class="flex items-center gap-0.5 text-[#FFD700]">
-                                    <span class="material-symbols-outlined text-sm"
-                                        style="font-variation-settings: 'FILL' 1;">star</span>
-                                    <span class="text-gray-900">4.8</span>
-                                </div>
-                                <div class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-sm">schedule</span>
-                                    <span>20-30 min</span>
-                                </div>
-                                <div class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-sm">distance</span>
-                                    <span>0.8 mi</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Dynamic List of Restaurants -->
+            <div class="flex-grow overflow-y-auto p-4 sm:p-5 space-y-4 hide-scrollbar" id="restaurant-list-container">
+                <!-- Populated via JavaScript dynamically -->
+                <div class="flex flex-col items-center justify-center py-12 text-center text-gray-400">
+                    <div class="w-10 h-10 border-4 border-secondary border-t-transparent rounded-full animate-spin mb-3"></div>
+                    <p class="font-bold text-sm text-gray-700">Detecting your location & nearby famous hotels...</p>
                 </div>
-
-                <!-- Restaurant Card 2 -->
-                <div
-                    class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 hover:shadow-md hover:scale-[1.01] transition-all cursor-pointer group">
-                    <div class="flex gap-4">
-                        <div class="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
-                            <img class="w-full h-full object-cover"
-                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkGACJVUh0kdWwBIWdRa2zKFx35fqPX_GKvECVrk_I5HluKdgAzX2qxlwjJNFxldqB08opaX2TmaI66pAUHiGQ79m0mo0KfhlahFf1HauAs2QEMHO3haCJcClF4ZDCe_ZIb6LDDYKEHMnJNeKoq8XMxrppq67WRgGsbp_gLPdLnxf_cEGqKBfejzVwPUryAbsIM_k_i3j4v75knBF7Ks8bXkdGrvhUr1WVXmmP7UcSbQk9lxXFRWQv" />
-                        </div>
-                        <div class="flex-grow">
-                            <h3 class="font-bold text-lg text-gray-900 group-hover:text-red-600 transition-colors">Zen
-                                Sushi & Sake</h3>
-                            <p class="text-gray-500 text-xs mb-2">Japanese • Seafood • Fresh</p>
-                            <div class="flex items-center gap-4 text-xs font-bold text-gray-600">
-                                <div class="flex items-center gap-0.5 text-[#FFD700]">
-                                    <span class="material-symbols-outlined text-sm"
-                                        style="font-variation-settings: 'FILL' 1;">star</span>
-                                    <span class="text-gray-900">4.6</span>
-                                </div>
-                                <div class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-sm">schedule</span>
-                                    <span>35-45 min</span>
-                                </div>
-                                <div class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-sm">distance</span>
-                                    <span>1.2 mi</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Restaurant Card 3 -->
-                <div
-                    class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 hover:shadow-md hover:scale-[1.01] transition-all cursor-pointer group">
-                    <div class="flex gap-4">
-                        <div class="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
-                            <img class="w-full h-full object-cover"
-                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBy9H-f7JSZMtALe5yWzdik4OlLYpApdXsKu3GFc4942l7Lkf-sRiHWUw2noDlO3MdFrUEtSIZH8JrcgAeU01c8F_0pKvZfpg_q837uJOUUNYr3ne7s2oH1m0mM8rn_G-fghMdP8zBpXNK5LVv-8aTp9_EAkZQhYovLaWrbDN9jEtFJXU1lar-2LJcRG4q-_uk1zckhcrcMIqu5gfTYNUCg8lLgPNNjtj5xXuYwwOHmsj4k2f4E-vZO" />
-                        </div>
-                        <div class="flex-grow">
-                            <h3 class="font-bold text-lg text-gray-900 group-hover:text-red-600 transition-colors">
-                                Luigi's Brick Oven</h3>
-                            <p class="text-gray-500 text-xs mb-2">Italian • Pizza • Pasta</p>
-                            <div class="flex items-center gap-4 text-xs font-bold text-gray-600">
-                                <div class="flex items-center gap-0.5 text-[#FFD700]">
-                                    <span class="material-symbols-outlined text-sm"
-                                        style="font-variation-settings: 'FILL' 1;">star</span>
-                                    <span class="text-gray-900">4.9</span>
-                                </div>
-                                <div class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-sm">schedule</span>
-                                    <span>15-25 min</span>
-                                </div>
-                                <div class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-sm">distance</span>
-                                    <span>0.5 mi</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="p-4 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] relative z-20">
-                <button
-                    class="w-full bg-red-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-red-800 transition-colors shadow-lg active:scale-95">
-                    Show more results
-                    <span class="material-symbols-outlined text-sm">expand_more</span>
-                </button>
             </div>
         </aside>
     </main>
@@ -548,21 +425,675 @@
 
             if (!sessionStorage.getItem('hasLoaded') || forceLoader) {
                 const loader = document.getElementById('loader');
-                const loaderVideo = document.getElementById('loader-video');
-                if (loaderVideo) {
-                    loaderVideo.playbackRate = 0.5; // slow down video by half
-                    // Make sure the video plays from beginning if it was somehow paused
-                    loaderVideo.currentTime = 0;
-                    loaderVideo.play();
+                const isMobile = window.innerWidth < 768;
+                const loaderVideo = isMobile
+                    ? document.getElementById('loader-video-mobile')
+                    : document.getElementById('loader-video-desktop');
+
+                let hasEnded = false;
+                const hideLoader = () => {
+                    if (hasEnded) return;
+                    hasEnded = true;
+                    if (loader) {
+                        loader.style.opacity = '0';
+                        setTimeout(() => loader.classList.add('hidden'), 800);
+                    }
+                };
+
+                if (loader) {
+                    loader.classList.remove('hidden');
+                    loader.style.opacity = '1';
                 }
-                loader.classList.remove('hidden');
-                loader.style.opacity = '1';
-                setTimeout(() => {
-                    loader.style.opacity = '0';
-                    setTimeout(() => loader.classList.add('hidden'), 1000); // Just hide instead of remove so we can reuse
-                }, 4500); // increased from 3000 to allow slower video to play
+
+                if (loaderVideo) {
+                    loaderVideo.currentTime = 0;
+                    loaderVideo.playbackRate = isMobile ? 0.6 : 1.0;
+
+                    // Listen to full video finish
+                    loaderVideo.addEventListener('ended', hideLoader);
+
+                    // Fallback check if time reaches end
+                    loaderVideo.addEventListener('timeupdate', () => {
+                        if (loaderVideo.duration && loaderVideo.currentTime >= loaderVideo.duration - 0.15) {
+                            hideLoader();
+                        }
+                    });
+
+                    loaderVideo.play().catch(e => {
+                        console.log("Autoplay issue: ", e);
+                        setTimeout(hideLoader, 3500);
+                    });
+                } else {
+                    hideLoader();
+                }
+
+                // Safety fallback so it never hangs
+                setTimeout(hideLoader, 15000);
                 sessionStorage.setItem('hasLoaded', 'true');
             }
+        });
+
+        // ==========================================
+        //  AUTHENTIC NEARBY RESTAURANTS & MAP ENGINE
+        // ==========================================
+        let map = null;
+        let userMarker = null;
+        let restaurantMarkers = [];
+        let currentCuisineFilter = 'all';
+        let currentRestaurants = [];
+
+        // Comprehensive Authentic Hotels & Signature Dishes Database
+        const AUTHENTIC_CITY_HOTELS = {
+            'chennai': [
+                {
+                    id: 'sangeetha-chennai',
+                    name: "Sangeetha Veg Restaurant",
+                    cuisine: "South Indian • Pure Veg • Traditional",
+                    cuisineType: "south_indian",
+                    rating: 4.8,
+                    time: "20-30 min",
+                    distance: "0.9 km",
+                    image: "img/masala_dosa.png",
+                    address: "GN Chetty Road, T. Nagar, Chennai",
+                    latOffset: 0.008, lngOffset: 0.005,
+                    dishes: [
+                        { name: "Special Ghee Podi Dosa", price: 140, image: "img/masala_dosa.png" },
+                        { name: "Mini Tiffin with Sambar & 3 Chutneys", price: 175, image: "img/dhal-soup.png" },
+                        { name: "South Indian Filter Kaapi", price: 45, image: "img/masala_dosa.png" }
+                    ]
+                },
+                {
+                    id: 'thalappakatti-chennai',
+                    name: "Dindigul Thalappakatti",
+                    cuisine: "Biryani • Chettinad • Non-Veg",
+                    cuisineType: "biryani",
+                    rating: 4.9,
+                    time: "25-35 min",
+                    distance: "1.4 km",
+                    image: "img/mutton_biryani.png",
+                    address: "Mount Road, Anna Salai, Chennai",
+                    latOffset: -0.007, lngOffset: 0.009,
+                    dishes: [
+                        { name: "Thalappakatti Mutton Biryani (Seeraga Samba)", price: 345, image: "img/mutton_biryani.png" },
+                        { name: "Authentic Chicken 65 (Boneless)", price: 280, image: "img/chicken_kebab.png" },
+                        { name: "Black Pepper Chicken Fry", price: 295, image: "img/chicken_tikka_masala.png" }
+                    ]
+                },
+                {
+                    id: 'buhari-chennai',
+                    name: "Buhari Hotel (Since 1951)",
+                    cuisine: "Mughlai • Biryani • Heritage",
+                    cuisineType: "biryani",
+                    rating: 4.7,
+                    time: "20-30 min",
+                    distance: "1.8 km",
+                    image: "img/chicken_biryani.png",
+                    address: "Anna Salai, Triplicane, Chennai",
+                    latOffset: 0.005, lngOffset: -0.008,
+                    dishes: [
+                        { name: "The Original 1965 Chicken 65", price: 290, image: "img/chicken_kebab.png" },
+                        { name: "Buhari Mutton Dum Biryani", price: 360, image: "img/mutton_biryani.png" },
+                        { name: "Ceylon Egg Parotta with Salna", price: 160, image: "img/egg_curry.png" }
+                    ]
+                },
+                {
+                    id: 'a2b-chennai',
+                    name: "A2B - Adyar Ananda Bhavan",
+                    cuisine: "Sweets • South Indian • Chaat",
+                    cuisineType: "desserts",
+                    rating: 4.6,
+                    time: "15-25 min",
+                    distance: "0.6 km",
+                    image: "img/gulab_jamun.png",
+                    address: "LB Road, Adyar, Chennai",
+                    latOffset: -0.004, lngOffset: -0.005,
+                    dishes: [
+                        { name: "Special Ghee Mysore Pak Box (250g)", price: 195, image: "img/gulab_jamun.png" },
+                        { name: "Delhi Style Chola Bhature", price: 160, image: "img/chole_bhature.png" },
+                        { name: "Paneer Butter Masala Combo", price: 240, image: "img/paneer_butter_masala.png" }
+                    ]
+                },
+                {
+                    id: 'murugan-idli-chennai',
+                    name: "Murugan Idli Shop",
+                    cuisine: "South Indian • Tiffin • Traditional",
+                    cuisineType: "south_indian",
+                    rating: 4.8,
+                    time: "15-20 min",
+                    distance: "1.1 km",
+                    image: "img/masala_dosa.png",
+                    address: "Usman Road, T. Nagar, Chennai",
+                    latOffset: 0.009, lngOffset: -0.003,
+                    dishes: [
+                        { name: "Ghee Podi Butter Idli (2 Pcs)", price: 95, image: "img/masala_dosa.png" },
+                        { name: "Onion Uthappam with 4 Chutneys", price: 130, image: "img/masala_dosa.png" },
+                        { name: "Madurai Special Famous Jigarthanda", price: 90, image: "img/gulab_jamun.png" }
+                    ]
+                },
+                {
+                    id: 'junior-kuppanna-chennai',
+                    name: "Junior Kuppanna",
+                    cuisine: "Kongu Naadu • Non-Veg • Parotta",
+                    cuisineType: "biryani",
+                    rating: 4.7,
+                    time: "25-35 min",
+                    distance: "1.9 km",
+                    image: "img/mutton_curry.png",
+                    address: "Nungambakkam High Road, Chennai",
+                    latOffset: -0.010, lngOffset: 0.004,
+                    dishes: [
+                        { name: "Madurai Mutton Chukka Varuval", price: 330, image: "img/mutton_curry.png" },
+                        { name: "Kongu Naadu Chicken Pallipalayam", price: 290, image: "img/chicken_tikka_masala.png" },
+                        { name: "Flaky Veechu Parotta (2 pcs)", price: 80, image: "img/chole_bhature.png" }
+                    ]
+                },
+                {
+                    id: 'punjabi-dhaba-chennai',
+                    name: "Sardarji Punjabi Dhaba",
+                    cuisine: "North Indian • Tandoor • Punjabi",
+                    cuisineType: "north_indian",
+                    rating: 4.7,
+                    time: "20-30 min",
+                    distance: "1.5 km",
+                    image: "img/tandoori_chicken.png",
+                    address: "Kilpauk Garden Road, Chennai",
+                    latOffset: 0.006, lngOffset: 0.011,
+                    dishes: [
+                        { name: "Smoky Tandoori Chicken (Half)", price: 260, image: "img/tandoori_chicken.png" },
+                        { name: "Dal Makhani with Butter Naan", price: 210, image: "img/dal_makhani.png" },
+                        { name: "Amritsari Paneer Tikka", price: 240, image: "img/paneer_tikka.png" }
+                    ]
+                },
+                {
+                    id: 'cafe-coffee-chennai',
+                    name: "The Belgian Waffle & Cafe",
+                    cuisine: "Cafe • Waffles • Shakes",
+                    cuisineType: "cafe",
+                    rating: 4.9,
+                    time: "15-25 min",
+                    distance: "0.7 km",
+                    image: "img/chicken_shawarma.png",
+                    address: "Besant Nagar Beach Road, Chennai",
+                    latOffset: -0.008, lngOffset: -0.009,
+                    dishes: [
+                        { name: "Crispy Chicken Shawarma Roll", price: 160, image: "img/chicken_shawarma.png" },
+                        { name: "Belgian Chocolate Overload Waffle", price: 180, image: "img/gulab_jamun.png" },
+                        { name: "Iced Caramel Macchiato", price: 140, image: "img/masala_dosa.png" }
+                    ]
+                }
+            ],
+            'bengaluru': [
+                {
+                    id: 'meghana-blr',
+                    name: "Meghana Foods",
+                    cuisine: "Andhra • Special Biryani • Spicy",
+                    cuisineType: "biryani",
+                    rating: 4.9,
+                    time: "20-30 min",
+                    distance: "1.2 km",
+                    image: "img/chicken_biryani.png",
+                    address: "Koramangala 5th Block, Bengaluru",
+                    latOffset: 0.007, lngOffset: 0.008,
+                    dishes: [
+                        { name: "Meghana Special Chicken Biryani", price: 340, image: "img/chicken_biryani.png" },
+                        { name: "Spicy Chicken 555 Boneless", price: 290, image: "img/chicken_kebab.png" },
+                        { name: "Meghana Paneer Biryani", price: 280, image: "img/vegetable_biryani.png" }
+                    ]
+                },
+                {
+                    id: 'empire-blr',
+                    name: "Empire Restaurant (Since 1966)",
+                    cuisine: "Mughlai • Kebab • Ghee Rice",
+                    cuisineType: "biryani",
+                    rating: 4.8,
+                    time: "25-35 min",
+                    distance: "1.5 km",
+                    image: "img/chicken_kebab.png",
+                    address: "Church Street, MG Road, Bengaluru",
+                    latOffset: -0.006, lngOffset: 0.007,
+                    dishes: [
+                        { name: "Empire Famous Ghee Rice & Kebab Combo", price: 290, image: "img/chicken_kebab.png" },
+                        { name: "Jumbo Chicken Shawarma Roll", price: 170, image: "img/chicken_shawarma.png" },
+                        { name: "Coin Parotta (Set of 3)", price: 90, image: "img/chole_bhature.png" }
+                    ]
+                },
+                {
+                    id: 'vidyarthi-bhavan-blr',
+                    name: "Vidyarthi Bhavan (Since 1943)",
+                    cuisine: "Heritage South Indian • Dosa",
+                    cuisineType: "south_indian",
+                    rating: 4.9,
+                    time: "15-25 min",
+                    distance: "2.1 km",
+                    image: "img/masala_dosa.png",
+                    address: "Gandhi Bazaar, Basavanagudi, Bengaluru",
+                    latOffset: -0.010, lngOffset: -0.006,
+                    dishes: [
+                        { name: "Vidyarthi Crispy Butter Masala Dosa", price: 110, image: "img/masala_dosa.png" },
+                        { name: "Crispy Uddin Vada with Chutney", price: 65, image: "img/vada_pav.png" },
+                        { name: "Authentic Filter Kaapi", price: 40, image: "img/masala_dosa.png" }
+                    ]
+                },
+                {
+                    id: 'nagarjuna-blr',
+                    name: "Nagarjuna Andhra Restaurant",
+                    cuisine: "Andhra Meals • Gunpowder Ghee",
+                    cuisineType: "north_indian",
+                    rating: 4.7,
+                    time: "20-30 min",
+                    distance: "1.8 km",
+                    image: "img/chicken_tikka_masala.png",
+                    address: "Residency Road, Bengaluru",
+                    latOffset: 0.009, lngOffset: -0.004,
+                    dishes: [
+                        { name: "Nagarjuna Signature Andhra Chicken Roast", price: 320, image: "img/chicken_tikka_masala.png" },
+                        { name: "Andhra Full Meals with Podi & Pure Ghee", price: 250, image: "img/dhal-soup.png" },
+                        { name: "Nagarjuna Mutton Sukka", price: 360, image: "img/mutton_curry.png" }
+                    ]
+                }
+            ],
+            'hyderabad': [
+                {
+                    id: 'paradise-hyd',
+                    name: "Paradise Biryani (Since 1953)",
+                    cuisine: "Hyderabadi Dum Biryani • Heritage",
+                    cuisineType: "biryani",
+                    rating: 4.9,
+                    time: "20-30 min",
+                    distance: "1.1 km",
+                    image: "img/mutton_biryani.png",
+                    address: "MG Road, Secunderabad, Hyderabad",
+                    latOffset: 0.006, lngOffset: 0.008,
+                    dishes: [
+                        { name: "Hyderabadi Royal Mutton Dum Biryani", price: 375, image: "img/mutton_biryani.png" },
+                        { name: "Hyderabadi Chicken Dum Biryani", price: 320, image: "img/chicken_biryani.png" },
+                        { name: "Famous Double Ka Meetha", price: 120, image: "img/gulab_jamun.png" }
+                    ]
+                },
+                {
+                    id: 'bawarchi-hyd',
+                    name: "Bawarchi Restaurant",
+                    cuisine: "Biryani • Kebabs • Mughlai",
+                    cuisineType: "biryani",
+                    rating: 4.8,
+                    time: "25-35 min",
+                    distance: "1.9 km",
+                    image: "img/chicken_biryani.png",
+                    address: "RTC X Roads, Hyderabad",
+                    latOffset: -0.008, lngOffset: 0.006,
+                    dishes: [
+                        { name: "Bawarchi Special Mutton Handi Biryani", price: 360, image: "img/mutton_biryani.png" },
+                        { name: "Tandoori Tangdi Kebab (4 pcs)", price: 280, image: "img/tandoori_chicken.png" },
+                        { name: "Mirchi Ka Salan & Raita Combo", price: 60, image: "img/dhal-soup.png" }
+                    ]
+                }
+            ]
+        };
+
+        // Fallback generator for any global city/town
+        function generateAuthenticCityData(cityName, lat, lon) {
+            const cleanCity = (cityName || 'Your City').split(',')[0].trim();
+            return [
+                {
+                    id: `royal-biryani-${cleanCity.toLowerCase().replace(/\\s+/g, '-')}`,
+                    name: `Royal ${cleanCity} Dum Biryani & Grill`,
+                    cuisine: "Biryani • Mughlai • Tandoor",
+                    cuisineType: "biryani",
+                    rating: 4.9,
+                    time: "20-30 min",
+                    distance: "0.8 km",
+                    image: "img/chicken_biryani.png",
+                    address: `Main Market Road, ${cleanCity}`,
+                    latOffset: 0.006, lngOffset: 0.005,
+                    dishes: [
+                        { name: "Special Chef Dum Chicken Biryani", price: 301, image: "img/chicken_biryani.png" },
+                        { name: "Smoky Tandoori Chicken Kebab", price: 260, image: "img/chicken_kebab.png" },
+                        { name: "Aromatic Mutton Biryani", price: 360, image: "img/mutton_biryani.png" }
+                    ]
+                },
+                {
+                    id: `tiffin-delight-${cleanCity.toLowerCase().replace(/\\s+/g, '-')}`,
+                    name: `${cleanCity} Heritage Tiffin Center`,
+                    cuisine: "South Indian • Pure Veg • Dosa",
+                    cuisineType: "south_indian",
+                    rating: 4.8,
+                    time: "15-25 min",
+                    distance: "0.5 km",
+                    image: "img/masala_dosa.png",
+                    address: `Temple Road, ${cleanCity}`,
+                    latOffset: -0.005, lngOffset: 0.007,
+                    dishes: [
+                        { name: "Crispy Golden Masala Dosa", price: 120, image: "img/masala_dosa.png" },
+                        { name: "Fluffy Steamed Idlis with Sambar", price: 70, image: "img/dhal-soup.png" },
+                        { name: "Crispy Medu Vada (2 Pcs)", price: 65, image: "img/vada_pav.png" }
+                    ]
+                },
+                {
+                    id: `punjab-kitchen-${cleanCity.toLowerCase().replace(/\\s+/g, '-')}`,
+                    name: `Punjab Grill & Curry House`,
+                    cuisine: "North Indian • Butter Chicken • Naan",
+                    cuisineType: "north_indian",
+                    rating: 4.8,
+                    time: "25-35 min",
+                    distance: "1.4 km",
+                    image: "img/paneer_butter_masala.png",
+                    address: `Station Road, ${cleanCity}`,
+                    latOffset: 0.008, lngOffset: -0.006,
+                    dishes: [
+                        { name: "Rich Paneer Butter Masala", price: 230, image: "img/paneer_butter_masala.png" },
+                        { name: "Dal Makhani with Garlic Naan", price: 210, image: "img/dal_makhani.png" },
+                        { name: "Delhi Style Chole Bhature", price: 160, image: "img/chole_bhature.png" }
+                    ]
+                },
+                {
+                    id: `sweet-paradise-${cleanCity.toLowerCase().replace(/\\s+/g, '-')}`,
+                    name: `${cleanCity} Sweet Palace & Bakery`,
+                    cuisine: "Desserts • Sweets • Snacks",
+                    cuisineType: "desserts",
+                    rating: 4.9,
+                    time: "15-20 min",
+                    distance: "0.9 km",
+                    image: "img/gulab_jamun.png",
+                    address: `Bazaar Street, ${cleanCity}`,
+                    latOffset: -0.007, lngOffset: -0.008,
+                    dishes: [
+                        { name: "Warm Gulab Jamun (4 pcs)", price: 90, image: "img/gulab_jamun.png" },
+                        { name: "Mumbai Style Vada Pav (2 pcs)", price: 80, image: "img/vada_pav.png" },
+                        { name: "Chicken Shawarma Roll", price: 150, image: "img/chicken_shawarma.png" }
+                    ]
+                },
+                {
+                    id: `fast-bites-${cleanCity.toLowerCase().replace(/\\s+/g, '-')}`,
+                    name: `The Urban Cafe & Burgers`,
+                    cuisine: "Cafe • Fast Food • Wraps",
+                    cuisineType: "cafe",
+                    rating: 4.7,
+                    time: "20-30 min",
+                    distance: "1.1 km",
+                    image: "img/chicken_shawarma.png",
+                    address: `Commercial Street, ${cleanCity}`,
+                    latOffset: 0.004, lngOffset: 0.009,
+                    dishes: [
+                        { name: "Crispy Chicken Shawarma Roll", price: 160, image: "img/chicken_shawarma.png" },
+                        { name: "Grilled Veg Cheesy Burger", price: 140, image: "img/vada_pav.png" },
+                        { name: "Cold Coffee with Ice Cream", price: 110, image: "img/masala_dosa.png" }
+                    ]
+                }
+            ];
+        }
+
+        // Initialize Map
+        function initLeafletMap(lat, lon, locationLabel) {
+            if (!map) {
+                map = L.map('map', {
+                    zoomControl: false
+                }).setView([lat, lon], 14);
+
+                // OpenStreetMap clean tile layer
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap'
+                }).addTo(map);
+
+                L.control.zoom({ position: 'bottomright' }).addTo(map);
+            } else {
+                map.setView([lat, lon], 14);
+            }
+
+            // User Location Marker
+            if (userMarker) map.removeLayer(userMarker);
+            const userIcon = L.divIcon({
+                className: 'custom-user-pin',
+                html: `<div class="relative flex items-center justify-center">
+                    <span class="w-7 h-7 rounded-full bg-secondary text-white flex items-center justify-center shadow-2xl border-2 border-white ring-4 ring-red-300 animate-pulse">
+                        <span class="material-symbols-outlined text-xs">person_pin_circle</span>
+                    </span>
+                </div>`,
+                iconSize: [28, 28],
+                iconAnchor: [14, 14]
+            });
+
+            userMarker = L.marker([lat, lon], { icon: userIcon }).addTo(map);
+            userMarker.bindPopup(`<b>Your Live Location</b><br>${locationLabel}`).openPopup();
+        }
+
+        // Render Hotel Markers on Map
+        function renderMapMarkers(hotels, centerLat, centerLon) {
+            restaurantMarkers.forEach(m => map.removeLayer(m));
+            restaurantMarkers = [];
+
+            hotels.forEach(h => {
+                const hLat = centerLat + (h.latOffset || 0);
+                const hLng = centerLon + (h.lngOffset || 0);
+
+                const pinIcon = L.divIcon({
+                    className: 'hotel-pin',
+                    html: `<div class="bg-[#1c1b1b] text-[#FFD700] p-2 rounded-2xl shadow-xl border-2 border-[#FFD700] flex items-center justify-center hover:scale-125 transition-transform cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">restaurant</span>
+                    </div>`,
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16]
+                });
+
+                const marker = L.marker([hLat, hLng], { icon: pinIcon }).addTo(map);
+                marker.bindPopup(`
+                    <div class="p-1 text-center font-sans min-w-[160px]">
+                        <img src="${h.image}" class="w-full h-20 object-cover rounded-lg mb-2" onerror="this.src='img/chicken_biryani.png'" />
+                        <h4 class="font-black text-sm text-gray-900 leading-tight">${h.name}</h4>
+                        <p class="text-xs text-secondary font-bold mt-0.5">⭐ ${h.rating} • ${h.distance}</p>
+                        <p class="text-[11px] text-gray-500 mt-1">${h.address}</p>
+                    </div>
+                `);
+                marker.hotelId = h.id;
+                restaurantMarkers.push(marker);
+            });
+        }
+
+        // Render Restaurant Cards into Sidebar
+        function renderRestaurantCards(hotels) {
+            const container = document.getElementById('restaurant-list-container');
+            const filtered = (currentCuisineFilter === 'all') 
+                ? hotels 
+                : hotels.filter(h => h.cuisineType === currentCuisineFilter);
+
+            document.getElementById('restaurant-count-badge').innerText = `${filtered.length} Authentic Places`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-500">
+                        <span class="material-symbols-outlined text-4xl text-gray-400 mb-2">search_off</span>
+                        <p class="font-bold text-base">No restaurants match this filter.</p>
+                        <button onclick="filterCuisine('all', document.querySelector('.cuisine-btn'))" class="mt-3 px-4 py-2 bg-secondary text-white rounded-xl text-xs font-bold">Reset Filters</button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(h => `
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 hover:shadow-xl hover:border-[#FFD700]/50 transition-all cursor-pointer group" onclick="focusRestaurantOnMap('${h.id}')">
+                    <div class="flex gap-4 items-start">
+                        <div class="w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 rounded-2xl overflow-hidden shadow-inner relative bg-gray-50">
+                            <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" src="${h.image}" onerror="this.src='img/chicken_biryani.png'" />
+                            <span class="absolute top-1.5 left-1.5 bg-[#1c1b1b]/80 text-[#FFD700] text-[10px] font-black px-2 py-0.5 rounded-md backdrop-blur-sm">TOP</span>
+                        </div>
+                        <div class="flex-grow">
+                            <div class="flex justify-between items-start">
+                                <h3 class="font-black text-base sm:text-lg text-gray-900 group-hover:text-secondary transition-colors leading-tight">${h.name}</h3>
+                            </div>
+                            <p class="text-gray-500 text-xs font-medium mt-1 leading-snug">${h.cuisine}</p>
+                            <p class="text-gray-400 text-[11px] font-medium mt-0.5 truncate max-w-[220px]">${h.address}</p>
+                            
+                            <div class="flex items-center gap-3 text-xs font-bold text-gray-700 mt-2">
+                                <div class="flex items-center gap-1 text-[#d97706] bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+                                    <span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+                                    <span>${h.rating}</span>
+                                </div>
+                                <div class="flex items-center gap-1 text-gray-500">
+                                    <span class="material-symbols-outlined text-xs">schedule</span>
+                                    <span>${h.time}</span>
+                                </div>
+                                <div class="flex items-center gap-1 text-gray-500">
+                                    <span class="material-symbols-outlined text-xs">distance</span>
+                                    <span>${h.distance}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Famous Signature Dishes -->
+                    <div class="mt-4 pt-3 border-t border-gray-100">
+                        <p class="text-[11px] font-extrabold uppercase text-gray-400 tracking-wider mb-2 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-xs text-[#FFD700]">local_fire_department</span>
+                            Famous Signature Dishes:
+                        </p>
+                        <div class="space-y-2">
+                            ${h.dishes.map(d => `
+                                <div class="flex justify-between items-center bg-gray-50 hover:bg-yellow-50/60 p-2 rounded-xl transition-colors">
+                                    <span class="text-xs font-bold text-gray-800">${d.name}</span>
+                                    <button onclick="orderDishFromHotel('${d.name.replace(/'/g, "\\\\'")}', ${d.price}, '${d.image}', event)" class="bg-secondary hover:bg-red-700 text-white font-extrabold text-xs px-3 py-1.5 rounded-lg shadow-sm hover:scale-105 active:scale-95 transition-all flex items-center gap-1">
+                                        <span>+ Add ₹${d.price}</span>
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function focusRestaurantOnMap(hotelId) {
+            const marker = restaurantMarkers.find(m => m.hotelId === hotelId);
+            if (marker && map) {
+                map.flyTo(marker.getLatLng(), 16, { animate: true, duration: 1 });
+                marker.openPopup();
+            }
+        }
+
+        function filterCuisine(type, btn) {
+            currentCuisineFilter = type;
+            document.querySelectorAll('.cuisine-btn').forEach(b => {
+                b.className = 'cuisine-btn whitespace-nowrap px-4 py-1.5 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 font-bold text-xs transition-all';
+            });
+            btn.className = 'cuisine-btn active whitespace-nowrap px-4 py-1.5 rounded-full bg-secondary text-white font-extrabold text-xs shadow-md transition-all';
+            renderRestaurantCards(currentRestaurants);
+        }
+
+        // Order Dish Directly into Cart
+        function orderDishFromHotel(dishName, price, img, event) {
+            if (event) event.stopPropagation();
+            addToCart({
+                name: dishName,
+                price: Number(price),
+                quantity: 1,
+                type: 'food',
+                image: img
+            });
+            updateCartBadge();
+        }
+
+        // Live Geolocation Engine
+        async function loadNearbyLocation(lat, lon) {
+            document.getElementById('map-status-text').innerText = "Locating authentic local hotels...";
+            
+            try {
+                // Reverse geocode via OpenStreetMap Nominatim
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
+                const data = await res.json();
+
+                const addr = data.address || {};
+                const locality = addr.suburb || addr.neighbourhood || addr.city_district || addr.town || addr.village || "Downtown";
+                const city = addr.city || addr.state_district || addr.state || "Chennai";
+                const fullLocStr = `${locality}, ${city}`;
+
+                document.getElementById('user-location-input').value = fullLocStr;
+                document.getElementById('detected-locality-text').innerText = `Near ${fullLocStr}`;
+                document.getElementById('nearby-headline').innerText = `Authentic Food in ${city}`;
+
+                initLeafletMap(lat, lon, fullLocStr);
+
+                // Match city database or generate authentic local places
+                const cityKey = city.toLowerCase();
+                if (cityKey.includes('chennai') || cityKey.includes('madras')) {
+                    currentRestaurants = AUTHENTIC_CITY_HOTELS.chennai;
+                } else if (cityKey.includes('bengaluru') || cityKey.includes('bangalore')) {
+                    currentRestaurants = AUTHENTIC_CITY_HOTELS.bengaluru;
+                } else if (cityKey.includes('hyderabad') || cityKey.includes('secunderabad')) {
+                    currentRestaurants = AUTHENTIC_CITY_HOTELS.hyderabad;
+                } else {
+                    currentRestaurants = generateAuthenticCityData(city, lat, lon);
+                }
+
+                renderMapMarkers(currentRestaurants, lat, lon);
+                renderRestaurantCards(currentRestaurants);
+
+                document.getElementById('map-status-text').innerText = `Live GPS: Verified near ${locality}`;
+            } catch (err) {
+                console.error("Location geocoding error: ", err);
+                // Fallback to Chennai authentic places
+                const defaultLat = 13.0827;
+                const defaultLon = 80.2707;
+                document.getElementById('user-location-input').value = "T. Nagar, Chennai";
+                document.getElementById('detected-locality-text').innerText = "Near T. Nagar, Chennai";
+                initLeafletMap(defaultLat, defaultLon, "T. Nagar, Chennai");
+                currentRestaurants = AUTHENTIC_CITY_HOTELS.chennai;
+                renderMapMarkers(currentRestaurants, defaultLat, defaultLon);
+                renderRestaurantCards(currentRestaurants);
+                document.getElementById('map-status-text').innerText = "GPS Location: T. Nagar, Chennai";
+            }
+        }
+
+        function triggerLiveGeolocation() {
+            const gpsIcon = document.getElementById('gps-icon');
+            if (gpsIcon) gpsIcon.classList.add('animate-spin');
+            document.getElementById('map-status-text').innerText = "Acquiring satellite GPS coordinates...";
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        if (gpsIcon) gpsIcon.classList.remove('animate-spin');
+                        loadNearbyLocation(position.coords.latitude, position.coords.longitude);
+                    },
+                    (error) => {
+                        if (gpsIcon) gpsIcon.classList.remove('animate-spin');
+                        console.warn("GPS Geolocation denied or unavailable. Using standard location.");
+                        loadNearbyLocation(13.0827, 80.2707);
+                    },
+                    { enableHighAccuracy: true, timeout: 8000 }
+                );
+            } else {
+                if (gpsIcon) gpsIcon.classList.remove('animate-spin');
+                loadNearbyLocation(13.0827, 80.2707);
+            }
+        }
+
+        async function searchLocationFromInput() {
+            const query = document.getElementById('user-location-input').value.trim();
+            if (!query) return;
+
+            document.getElementById('map-status-text').innerText = `Searching ${query}...`;
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`);
+                const data = await res.json();
+                if (data && data.length > 0) {
+                    const lat = parseFloat(data[0].lat);
+                    const lon = parseFloat(data[0].lon);
+                    loadNearbyLocation(lat, lon);
+                } else {
+                    alert("Location not found. Please try another city or locality name.");
+                }
+            } catch (e) {
+                console.error("Search geocode error: ", e);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('user-location-input');
+            if (input) {
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') searchLocationFromInput();
+                });
+            }
+            triggerLiveGeolocation();
         });
 
         // Hungry Mart Tagline Text Ticker (Cycles between "Hungry Mart" and "India's Fastest Mart")

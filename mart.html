@@ -64,7 +64,18 @@
 
             <!-- Hungry Mart Logo & Dynamic Ticker -->
             <a href="mart.html" class="flex items-center gap-3 group">
-                <img src="img/HUNGRY MART.png" alt="HUNGRY MART" class="h-14 sm:h-16 w-auto object-contain mart-glow-plain transition-transform group-hover:scale-105" />
+                <div class="relative w-14 sm:w-16 h-14 sm:h-16 flex-shrink-0 transition-transform group-hover:scale-105 select-none mart-glow-plain bg-[#FFD700] rounded-full flex items-center justify-center border-2 border-white/20 shadow-md">
+                <svg viewBox="0 0 100 100" class="w-[85%] h-[85%] select-none">
+                    <path d="M 22,25 L 85,25 L 75,65 L 32,65 Z" fill="#bc0008" />
+                    <path d="M 12,18 L 22,25 L 28,65 A 6,6 0 0,0 34,71 L 80,71" fill="none" stroke="#bc0008" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+                    <circle cx="38" cy="80" r="7" fill="#4C8235" stroke="#fff" stroke-width="2" />
+                    <circle cx="38" cy="80" r="2" fill="#fff" />
+                    <circle cx="72" cy="80" r="7" fill="#4C8235" stroke="#fff" stroke-width="2" />
+                    <circle cx="72" cy="80" r="2" fill="#fff" />
+                    <text x="53" y="42" fill="#ffffff" font-family="Plus Jakarta Sans, sans-serif" font-weight="900" font-size="13" text-anchor="middle" letter-spacing="0.5">HUNGRY</text>
+                    <text x="53" y="57" fill="#FFD700" font-family="Plus Jakarta Sans, sans-serif" font-weight="900" font-size="14" text-anchor="middle" letter-spacing="1">MART</text>
+                </svg>
+            </div>
                 <div class="flex items-center">
                     <span class="inline-flex items-center justify-center gap-2 w-[180px] sm:w-[210px] h-10 px-4 bg-secondary text-white font-extrabold text-xs sm:text-sm rounded-full shadow-lg border border-red-400 uppercase tracking-wider overflow-hidden select-none">
                         <span class="material-symbols-outlined text-sm sm:text-base text-yellow-300 animate-bounce flex-shrink-0">bolt</span>
@@ -96,7 +107,18 @@
     <div id="sidebar" class="fixed top-0 left-0 w-80 h-full bg-white z-50 shadow-2xl -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
         <div class="p-6 bg-primary flex items-center justify-between shadow-sm">
             <div class="flex items-center gap-3">
-                <img src="img/HUNGRY MART.png" class="h-10 w-auto" alt="Hungry Mart">
+                <div class="relative w-10 h-10 flex-shrink-0 select-none bg-[#FFD700] rounded-full flex items-center justify-center border-2 border-white/20 shadow-md">
+                    <svg viewBox="0 0 100 100" class="w-[85%] h-[85%] select-none">
+                        <path d="M 22,25 L 85,25 L 75,65 L 32,65 Z" fill="#bc0008" />
+                        <path d="M 12,18 L 22,25 L 28,65 A 6,6 0 0,0 34,71 L 80,71" fill="none" stroke="#bc0008" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+                        <circle cx="38" cy="80" r="7" fill="#4C8235" stroke="#fff" stroke-width="2" />
+                        <circle cx="38" cy="80" r="2" fill="#fff" />
+                        <circle cx="72" cy="80" r="7" fill="#4C8235" stroke="#fff" stroke-width="2" />
+                        <circle cx="72" cy="80" r="2" fill="#fff" />
+                        <text x="53" y="42" fill="#ffffff" font-family="Plus Jakarta Sans, sans-serif" font-weight="900" font-size="13" text-anchor="middle" letter-spacing="0.5">HUNGRY</text>
+                        <text x="53" y="57" fill="#FFD700" font-family="Plus Jakarta Sans, sans-serif" font-weight="900" font-size="14" text-anchor="middle" letter-spacing="1">MART</text>
+                    </svg>
+                </div>
                 <span class="font-black text-xl text-dark">HUNGRY MART</span>
             </div>
             <button onclick="toggleSidebar()" class="p-2 hover:bg-dark/10 rounded-full">
@@ -268,33 +290,51 @@
         }
 
         function addToCartGrocery(name, price, img) {
-            let cart = [];
-            try { cart = JSON.parse(localStorage.getItem('cart')) || []; } catch(e) { cart = []; }
-            
-            const existing = cart.find(i => i.name === name);
-            if (existing) {
-                existing.quantity += 1;
+            if (typeof addToCart === 'function') {
+                addToCart({
+                    name: name,
+                    price: Number(price),
+                    quantity: 1,
+                    type: 'grocery',
+                    image: img
+                });
             } else {
-                cart.push({ name: name, price: price, quantity: 1, img: img });
+                let cart = [];
+                try { cart = JSON.parse(localStorage.getItem('hungry_cart')) || []; } catch(e) { cart = []; }
+                const existing = cart.find(i => i.name.toLowerCase() === name.toLowerCase());
+                if (existing) {
+                    existing.quantity = (existing.quantity || 1) + 1;
+                } else {
+                    cart.push({ name: name, price: Number(price), quantity: 1, type: 'grocery', image: img });
+                }
+                localStorage.setItem('hungry_cart', JSON.stringify(cart));
             }
-            localStorage.setItem('cart', JSON.stringify(cart));
             updateCartBadge();
 
-            // Show Toast
+            // Show Toast in Mart
             const toast = document.getElementById('toast');
-            document.getElementById('toast-msg').innerText = `${name} added to cart!`;
-            toast.classList.remove('translate-y-24', 'opacity-0');
-            setTimeout(() => {
-                toast.classList.add('translate-y-24', 'opacity-0');
-            }, 2500);
+            if (toast) {
+                const msg = document.getElementById('toast-msg');
+                if (msg) msg.innerText = `${name} added to cart!`;
+                toast.classList.remove('translate-y-24', 'opacity-0');
+                setTimeout(() => {
+                    toast.classList.add('translate-y-24', 'opacity-0');
+                }, 2500);
+            }
         }
 
         function updateCartBadge() {
             try {
-                const cart = JSON.parse(localStorage.getItem('cart')) || [];
-                const totalCount = cart.reduce((sum, i) => sum + i.quantity, 0);
+                const cart = JSON.parse(localStorage.getItem('hungry_cart')) || [];
+                const totalCount = cart.reduce((sum, i) => sum + (i.quantity || 1), 0);
                 const badge = document.getElementById('cart-badge-count');
                 if (badge) badge.innerText = totalCount;
+                const badges = document.querySelectorAll('.cart-badge');
+                badges.forEach(b => {
+                    b.innerText = totalCount;
+                    if (totalCount > 0) b.classList.remove('hidden');
+                    else b.classList.add('hidden');
+                });
             } catch(e){}
         }
 
@@ -327,5 +367,6 @@
             }, 2800);
         });
     </script>
+    <script src="js/app.js"></script>
 </body>
 </html>
