@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta name="referrer" content="no-referrer" />
     <title>Recipe - HUNGRY</title>
     <link rel="icon" type="image/png" sizes="any" href="img/Eat-removebg-preview.png?v=2">
     <link rel="icon" type="image/png" sizes="32x32" href="img/Eat-removebg-preview.png?v=2">
@@ -435,8 +436,8 @@
         </div>
     </div>
 
-    <!-- Audio Player for Cloud TTS -->
-    <audio id="hungry-tts-player" class="hidden" preload="auto"></audio>
+    <!-- Audio Player for Cloud TTS with no-referrer -->
+    <audio id="hungry-tts-player" referrerpolicy="no-referrer" class="hidden" preload="auto"></audio>
 
     <!-- AI Chef Modal -->
     <div id="ai-modal" class="fixed inset-0 z-[300] bg-black/60 hidden flex items-center justify-center p-4">
@@ -1239,65 +1240,82 @@
         }
 
         function playGoogleTTS(text, langCode, langName) {
-            const player = document.getElementById('hungry-tts-player');
-            const cleanText = text.substring(0, 200);
-            const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${langCode}&client=gtx&q=${encodeURIComponent(cleanText)}`;
+            let player = document.getElementById('hungry-tts-player');
+            if (!player) {
+                player = new Audio();
+                player.id = 'hungry-tts-player';
+                player.referrerPolicy = 'no-referrer';
+                document.body.appendChild(player);
+            }
+            player.referrerPolicy = 'no-referrer';
+            const cleanText = text
+                .replace(/<[^>]+>/g, ' ')
+                .replace(/\*\*/g, '')
+                .replace(/\*/g, '')
+                .replace(/•/g, '')
+                .replace(/&nbsp;/g, ' ')
+                .replace(/[\n\r]+/g, ' ')
+                .replace(/\s+/g, ' ')
+                .substring(0, 180)
+                .trim();
+            const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${langCode}&client=tw-ob&q=${encodeURIComponent(cleanText)}`;
             
-            if (player) {
-                player.src = ttsUrl;
-                player.volume = 1.0;
-                activeAudio = player; // Track active audio player to allow pausing
-                const playPromise = player.play();
-                if (playPromise !== undefined) {
-                    playPromise.then(() => {
-                        console.log("Playing Google Cloud Open TTS for " + langName);
-                    }).catch(err => {
-                        console.log("DOM player error, falling back to Web Speech API: ", err);
-                        fallbackWebSpeech(cleanText, langCode, langName);
-                    });
-                }
+            player.src = ttsUrl;
+            player.volume = 1.0;
+            activeAudio = player;
+            const playPromise = player.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log(`[Hungry AI Cooking Voice] Playing audio for ${langName} (${langCode})`);
+                }).catch(err => {
+                    console.log("DOM player notice, falling back to Web Speech API: ", err);
+                    fallbackWebSpeech(cleanText, langCode, langName);
+                });
             } else {
                 fallbackWebSpeech(cleanText, langCode, langName);
             }
         }
 
         function fallbackWebSpeech(text, langCode, langName) {
-            if (!window.speechSynthesis) return;
-
-            const utterance = new SpeechSynthesisUtterance(text);
             let voiceCode = 'en-IN';
             if (langCode === 'hi') voiceCode = 'hi-IN';
             else if (langCode === 'ta') voiceCode = 'ta-IN';
             else if (langCode === 'te') voiceCode = 'te-IN';
             else if (langCode === 'ml') voiceCode = 'ml-IN';
 
-            utterance.lang = voiceCode;
-            utterance.volume = 1.0;
-            utterance.rate = 0.85;
-
-            const voices = window.speechSynthesis.getVoices();
-            
-            // Prefer High Quality / Neural / Google voices
-            const sortedVoices = [...voices].sort((a, b) => {
-                const aName = a.name.toLowerCase();
-                const bName = b.name.toLowerCase();
-                const aScore = (aName.includes('natural') ? 3 : 0) + (aName.includes('google') ? 2 : 0) + (aName.includes('online') ? 1 : 0);
-                const bScore = (bName.includes('natural') ? 3 : 0) + (bName.includes('google') ? 2 : 0) + (bName.includes('online') ? 1 : 0);
-                return bScore - aScore;
-            });
-
-            const matchedVoice = sortedVoices.find(v => {
-                const nameLower = v.name.toLowerCase();
+            const voices = (window.speechSynthesis) ? window.speechSynthesis.getVoices() : [];
+            const matchedVoice = voices.find(v => {
                 const langLower = v.lang.toLowerCase();
-                return langLower === voiceCode.toLowerCase() || 
-                       langLower.startsWith(langCode) || 
-                       nameLower.includes(langName.toLowerCase());
+                return langLower === voiceCode.toLowerCase() || langLower.startsWith(langCode);
             });
 
-            if (matchedVoice) {
+            if (matchedVoice && window.speechSynthesis) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = voiceCode;
                 utterance.voice = matchedVoice;
+                utterance.volume = 1.0;
+                utterance.rate = 0.85;
+                window.speechSynthesis.speak(utterance);
+                return;
             }
-            window.speechSynthesis.speak(utterance);
+
+            // Direct streaming with no-referrer
+            try {
+                const directAudio = new Audio();
+                directAudio.referrerPolicy = 'no-referrer';
+                directAudio.src = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${langCode}&client=tw-ob&q=${encodeURIComponent(text)}`;
+                activeAudio = directAudio;
+                directAudio.play().catch(e => {
+                    console.log("Direct TTS fallback error:", e);
+                    if (window.speechSynthesis) {
+                        const fallbackUtterance = new SpeechSynthesisUtterance(text);
+                        fallbackUtterance.lang = voiceCode;
+                        window.speechSynthesis.speak(fallbackUtterance);
+                    }
+                });
+            } catch (e) {
+                console.log("Audio creation error:", e);
+            }
         }
 
         function sendAIMessage() {

@@ -1478,13 +1478,27 @@ function getOrderHistory() {
     }
 
     // Google Cloud Open TTS Streaming
+    // Pre-cache WebSpeech voices on initialization
+    if (window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = () => {
+            if (window.speechSynthesis) window.speechSynthesis.getVoices();
+        };
+        window.speechSynthesis.getVoices();
+    }
+
+    // Google Cloud / Web Client High-Fidelity Open TTS Engine for ALL Languages (EN, HI, TA, TE, ML)
     function playChatBotTTS(text, langCode, langName) {
         if (!isSpeakerOn) return;
 
         // Cancel existing Web Speech or Audio
-        if (window.speechSynthesis) window.speechSynthesis.cancel();
+        if (window.speechSynthesis) {
+            try { window.speechSynthesis.cancel(); } catch (e) {}
+        }
         if (currentActiveAudio) {
-            currentActiveAudio.pause();
+            try {
+                currentActiveAudio.pause();
+                currentActiveAudio.currentTime = 0;
+            } catch (e) {}
             currentActiveAudio = null;
         }
 
@@ -1494,57 +1508,87 @@ function getOrderHistory() {
             .replace(/\*/g, '')
             .replace(/•/g, '')
             .replace(/&nbsp;/g, ' ')
+            .replace(/[\n\r]+/g, ' ')
             .replace(/\s+/g, ' ')
-            .substring(0, 250)
+            .substring(0, 180)
             .trim();
         if (!cleanText) return;
 
-        const player = document.getElementById('hungry-chatbot-tts-player');
-        if (player) {
-            const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${langCode}&client=gtx&q=${encodeURIComponent(cleanText)}`;
-            player.src = ttsUrl;
-            player.volume = 1.0;
-            currentActiveAudio = player;
-            const playPromise = player.play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    console.log("Playing chatbot TTS for " + langName);
-                }).catch(err => {
-                    console.log("Chatbot player error, falling back to Web Speech Synthesis: ", err);
-                    fallbackWebSpeechChat(cleanText, langCode, langName);
-                });
-            }
+        let targetCode = 'en';
+        if (langCode === 'hi' || langName === 'Hindi') targetCode = 'hi';
+        else if (langCode === 'ta' || langName === 'Tamil') targetCode = 'ta';
+        else if (langCode === 'te' || langName === 'Telugu') targetCode = 'te';
+        else if (langCode === 'ml' || langName === 'Malayalam') targetCode = 'ml';
+        else if (langCode === 'en' || langName === 'English') targetCode = 'en';
+        else targetCode = langCode || 'en';
+
+        let player = document.getElementById('hungry-chatbot-tts-player');
+        if (!player) {
+            player = new Audio();
+            player.id = 'hungry-chatbot-tts-player';
+            player.referrerPolicy = 'no-referrer';
+            document.body.appendChild(player);
+        }
+
+        player.referrerPolicy = 'no-referrer';
+        const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${targetCode}&client=tw-ob&q=${encodeURIComponent(cleanText)}`;
+        player.src = ttsUrl;
+        player.volume = 1.0;
+        currentActiveAudio = player;
+
+        const playPromise = player.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                console.log(`[Hungry AI Voice] Successfully playing audio for ${langName} (${targetCode})`);
+            }).catch(err => {
+                console.warn(`[Hungry AI Voice] Audio element notice for ${langName}, falling back to Web Speech/Audio object:`, err);
+                fallbackWebSpeechChat(cleanText, targetCode, langName);
+            });
         } else {
-            fallbackWebSpeechChat(cleanText, langCode, langName);
+            fallbackWebSpeechChat(cleanText, targetCode, langName);
         }
     }
 
     function fallbackWebSpeechChat(text, langCode, langName) {
-        if (!window.speechSynthesis) return;
-
-        const utterance = new SpeechSynthesisUtterance(text);
         let voiceCode = 'en-IN';
         if (langCode === 'hi') voiceCode = 'hi-IN';
         else if (langCode === 'ta') voiceCode = 'ta-IN';
         else if (langCode === 'te') voiceCode = 'te-IN';
         else if (langCode === 'ml') voiceCode = 'ml-IN';
 
-        utterance.lang = voiceCode;
-        utterance.volume = 1.0;
-        utterance.rate = 0.85;
-
-        const voices = window.speechSynthesis.getVoices();
+        const voices = (window.speechSynthesis) ? window.speechSynthesis.getVoices() : [];
         const matchedVoice = voices.find(v => {
-            const nameLower = v.name.toLowerCase();
             const langLower = v.lang.toLowerCase();
-            return langLower === voiceCode.toLowerCase() ||
-                langLower.startsWith(langCode) ||
-                nameLower.includes(langName.toLowerCase());
+            return langLower === voiceCode.toLowerCase() || langLower.startsWith(langCode);
         });
-        if (matchedVoice) {
+
+        if (matchedVoice && window.speechSynthesis) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = voiceCode;
             utterance.voice = matchedVoice;
+            utterance.volume = 1.0;
+            utterance.rate = 0.85;
+            window.speechSynthesis.speak(utterance);
+            return;
         }
-        window.speechSynthesis.speak(utterance);
+
+        // Direct audio streaming with no-referrer
+        try {
+            const directAudio = new Audio();
+            directAudio.referrerPolicy = 'no-referrer';
+            directAudio.src = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${langCode}&client=tw-ob&q=${encodeURIComponent(text)}`;
+            currentActiveAudio = directAudio;
+            directAudio.play().catch(e => {
+                console.log("Direct TTS fallback audio error:", e);
+                if (window.speechSynthesis) {
+                    const fallbackUtterance = new SpeechSynthesisUtterance(text);
+                    fallbackUtterance.lang = voiceCode;
+                    window.speechSynthesis.speak(fallbackUtterance);
+                }
+            });
+        } catch (e) {
+            console.log("Audio creation error:", e);
+        }
     }
 
     // 3. INJECT CHATBOT DOM ELEMENTS
@@ -1575,8 +1619,8 @@ function getOrderHistory() {
                 </button>
             </div>
 
-            <!-- Audio Player -->
-            <audio id="hungry-chatbot-tts-player" class="hidden" preload="auto"></audio>
+            <!-- Audio Player with no-referrer -->
+            <audio id="hungry-chatbot-tts-player" referrerpolicy="no-referrer" class="hidden" preload="auto"></audio>
 
             <!-- Chatbot Window Card - Shrunk height to 450px to prevent header overriding -->
             <div id="hungry-chatbot-window" class="absolute bottom-20 right-0 w-96 max-w-[calc(100vw-2rem)] h-[450px] rounded-3xl flex flex-col z-[1000] overflow-hidden chatbot-card transition-all duration-300 transform scale-95 opacity-0 pointer-events-none">
